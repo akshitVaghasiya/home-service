@@ -1,0 +1,46 @@
+.formInput {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 70rem;
+}
+
+.FormInputInput {
+  padding: 15px;
+  margin: 10px 0px;
+  border-radius: 5px;
+  border: 1px solid white;
+}
+
+.FormInputLabel {
+  font-size: 16px;
+  color: var(--primary-color);
+}
+
+.FormInputSpan {
+  font-size: 12px;
+  padding: 3px;
+  color: red;
+  display: none;
+}
+
+input:invalid[focused="true"] {
+  border: 1px solid red;
+  animation: shake 0.2s 1.5;
+}
+
+@keyframes shake {
+  25% {
+    translate: 6px 0;;
+  }
+  50% {
+    translate: -6px 0;;
+  }
+  75% {
+    translate: 6px 0;;
+  }
+}
+
+input:invalid[focused="true"] ~ span {
+  display: block;
+}
