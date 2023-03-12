@@ -198,3 +198,46 @@ export const forgotPassword = async (req, res) => {
     throw new Error("Email Not send! something wrong please try again.");
   }
 }
+
+/*************************** Reset Password from Link ***************************/
+exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
+  const payload = req.body;
+  const { userId } = req.user;
+
+  // creating token hash
+  // const resetPasswordToken = crypto
+  //   .createHash("sha256")
+  //   .update(req.params.token)
+  //   .digest("hex");
+
+  const user = await dbService.findOneRecord("customerModel",
+  {
+    _id: userId,
+    resetPasswordToken: payload.resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() }
+  }
+  );
+
+  if (!user) {
+    return next(
+      new ErrorHander(
+        "Reset Password Token is invalid or has been expired",
+        400
+      )
+    );
+  }
+
+  if (req.body.password !== req.body.confirmPassword) {
+    return next(new Error("Password does not password", 400));
+  }
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  return {
+    message: "Password Reset Succesfully",
+  };
+});
