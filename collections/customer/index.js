@@ -26,7 +26,9 @@ const customerSchema = new mongoose.Schema({
     deletedAt: Number,
     isUpdated: Boolean,
     createdAt: { type: Date, default: Date() },
-    updatedAt: { type: Date, default: Date() }
+    updatedAt: { type: Date, default: Date() },
+    resetPasswordToken: String,
+    resetPasswordExpire: Number,
 });
 
 export default mongoose.model("customer", customerSchema);

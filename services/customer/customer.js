@@ -10,9 +10,11 @@ import {
   encryptpassword,
   decryptPassword,
   generateJwtTokenFn,
+  generateRandom,
 } from "../../utilities/universal";
+import { sendEmail } from "../../utilities/sendEmail";
 
-/*************************** addContractor ***************************/
+/*************************** addCustomer ***************************/
 export const addCustomer = async (req) => {
   console.log("req service =>", req.body);
   const { email } = req.body;
@@ -38,6 +40,7 @@ export const addCustomer = async (req) => {
   }
 };
 
+/*************************** loginCustomer ***************************/
 export const onLogin = async (req, res, next) => {
   const payload = req.body;
   console.log("payload==>", payload);
@@ -92,10 +95,10 @@ export const onLogin = async (req, res, next) => {
   };
 };
 
-/*************************** addContractor ***************************/
+/*************************** getCustomer ***************************/
 export const getCustomer = async (entry) => {
   console.log("entry=>", entry);
-  let { user: { userId },  } = entry
+  let { user: { userId }, } = entry
   console.log("userId=>", userId);
 
   let contractorData = await dbService.findAllRecords("customerModel", {
@@ -104,3 +107,94 @@ export const getCustomer = async (entry) => {
 
   return contractorData;
 };
+
+/*************************** updateCustomerPassword ***************************/
+export const updateCustomerPassword = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+
+  let userData = await dbService.findOneRecord("customerModel", {
+    _id: userId,
+    isDeleted: false,
+  });
+
+  if (!userData) throw new Error("user not found!");
+
+  let match = await decryptPassword(payload.oldPassword, userData.password);
+  console.log("match->", match);
+  if (!match) throw new Error("old Password is Invalid");
+
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    throw new Error("new Password and confirm Password must be same!");
+  }
+
+  let password = await encryptpassword(req.body.newPassword);
+  req.body.oldPassword = password;
+
+  let project = await dbService.findOneAndUpdateRecord("customerModel",
+    { _id: userData._id },
+    {
+      password: password,
+      updatedAt: Date(),
+    },
+    { new: true }
+  );
+
+  return project;
+}
+
+/*************************** forgotPassword ***************************/
+export const forgotPassword = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+
+  let resetPasswordToken = await generateRandom();
+
+  let userData = await dbService.findOneAndUpdateRecord("customerModel",
+    {
+      _id: userId,
+      email: payload.email,
+    },
+    {
+      resetPasswordToken: resetPasswordToken,
+      resetPasswordExpire: Date.now() + 15 * 60 * 1000,
+    },
+    { new: true }
+  );
+
+
+  if (!userData) throw new Error("something wrong!");
+
+  const resetPasswordUrl = `http://localhost:3000/${resetPasswordToken}`;
+
+  const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested this email then, please ignore it.`;
+
+  try {
+    let emailResponse = await sendEmail({
+      email: userData.email,
+      subject: `Ecommerce Password Recovery`,
+      message,
+    });
+
+    let emailSuccessMessage = `email send successfully ${payload.email}`;
+
+    return {
+      message: emailSuccessMessage,
+    };
+
+  } catch (error) {
+    // let removeToken = await dbService.findOneAndUpdateRecord("customerModel",
+    //   {
+    //     _id: userId,
+    //     email: payload.email,
+    //   },
+    //   {
+    //     resetPasswordToken: undefined,
+    //     resetPasswordExpire: undefined,
+    //   },
+    //   { new: true }
+    // );
+    // console.log("in catch");
+    throw new Error("Email Not send! something wrong please try again.");
+  }
+}

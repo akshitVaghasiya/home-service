@@ -7,7 +7,9 @@
 import saveCustomer from './save';
 import login from './login';
 import list from './list';
+import updatepassword from './updatepassword';
+import forgotpassword from './forgotpassword';
 
 
-export default [saveCustomer, login, list];
+export default [saveCustomer, login, list, updatepassword, forgotpassword];
 
