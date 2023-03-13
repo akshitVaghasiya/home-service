@@ -146,14 +146,15 @@ export const updateCustomerPassword = async (req, res) => {
 /*************************** forgotPassword ***************************/
 export const forgotPassword = async (req, res) => {
   const payload = req.body;
-  const { userId } = req.user;
+  // const { userId } = req.user;
 
   let resetPasswordToken = await generateRandom();
 
   let userData = await dbService.findOneAndUpdateRecord("customerModel",
     {
-      _id: userId,
+      // _id: userId,
       email: payload.email,
+      isDeleted: false,
     },
     {
       resetPasswordToken: resetPasswordToken,
@@ -200,44 +201,39 @@ export const forgotPassword = async (req, res) => {
 }
 
 /*************************** Reset Password from Link ***************************/
-exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
+export const resetPassword = async (req, res) => {
   const payload = req.body;
-  const { userId } = req.user;
+  console.log(payload);
 
-  // creating token hash
-  // const resetPasswordToken = crypto
-  //   .createHash("sha256")
-  //   .update(req.params.token)
-  //   .digest("hex");
-
-  const user = await dbService.findOneRecord("customerModel",
-  {
-    _id: userId,
-    resetPasswordToken: payload.resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() }
+  if (payload.password !== payload.confirmPassword) {
+    throw new Error("Password and confirm password must be same!", 400);
   }
+
+  let userData = await dbService.findOneRecord("customerModel", {
+    resetPasswordToken: payload.resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+    isDeleted: false,
+  });
+
+  console.log("userData->", userData);
+
+  if (!userData) throw new Error("Reset Password Token is invalid or has been expired", 400);
+
+  let password = await encryptpassword(payload.password);
+
+  let result = await dbService.findOneAndUpdateRecord("customerModel",
+    {
+      _id: userData._id
+    },
+    {
+      $set: { password: password },
+      $unset: { resetPasswordToken: 1, resetPasswordExpire: 1 },
+    },
+    { new: true }
   );
 
-  if (!user) {
-    return next(
-      new ErrorHander(
-        "Reset Password Token is invalid or has been expired",
-        400
-      )
-    );
-  }
-
-  if (req.body.password !== req.body.confirmPassword) {
-    return next(new Error("Password does not password", 400));
-  }
-
-  user.password = req.body.password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
-
-  await user.save();
-
   return {
+    data: result,
     message: "Password Reset Succesfully",
   };
-});
+};

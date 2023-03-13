@@ -31,14 +31,12 @@ const router = new Router();
  *     description: success
  *    "400":
  *     description: fail
- *   security:
- *      - bearerAuth: [] 
  */
 
 const dataSchema = Joi.object({
   email: Joi.string().required().label("email"),
 });
 
-router.post('/forgotpassword', decodeJwtTokenFn, commonResolver.bind({ modelService: forgotPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
+router.post('/forgotpassword', commonResolver.bind({ modelService: forgotPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
 
 export default router;
