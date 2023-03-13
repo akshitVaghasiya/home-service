@@ -1,22 +1,17 @@
-/**
- * This is Contain Save router/api.
- * @author Sandip Vaghasiya
- *
- */
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { updateCustomerPassword } from "../../../../services/customer/customer";
+import { resetPassword } from "../../../../services/customer/customer";
 import { decodeJwtTokenFn } from "../../../../utilities/universal";
 const router = new Router();
 
 /**
  * @swagger
- * /api/v1/customer/updatepassword:
+ * /api/v1/customer/resetpassword:
  *  post:
  *   tags: ["Customer"]
  *   summary: Save customer information.
- *   description: api used for update customer password information.
+ *   description: api used for reset customer password information.
  *   parameters:
  *      - in: body
  *        name: lead
@@ -24,9 +19,9 @@ const router = new Router();
  *        schema:
  *         type: object
  *         properties:
- *           oldPassword:
+ *           resetPasswordToken:
  *             type: string
- *           newPassword:
+ *           password:
  *             type: string
  *           confirmPassword:
  *             type: string
@@ -35,16 +30,14 @@ const router = new Router();
  *     description: success
  *    "400":
  *     description: fail
- *   security:
- *      - bearerAuth: [] 
  */
 
 const dataSchema = Joi.object({
-  oldPassword: Joi.string().required().label("old Password"),
-  newPassword: Joi.string().required().label("new Password"),
-  confirmPassword: Joi.string().required().label("confirm Password"),
+    resetPasswordToken: Joi.string().required().label("resetPasswordToken"),
+    password: Joi.string().required().label("password"),
+    confirmPassword: Joi.string().required().label("confirmPassword")
 });
 
-router.post('/updatepassword', decodeJwtTokenFn, commonResolver.bind({ modelService: updateCustomerPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
+router.post('/resetpassword', commonResolver.bind({ modelService: resetPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
 
 export default router;
