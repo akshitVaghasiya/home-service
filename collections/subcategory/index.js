@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const subCategoryModel = new mongoose.Schema({
     subCategoryName: { type: String },
-    categoryId: { type: Schema.Types.ObjectId, ref: 'category' },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'category' },
     image: { type: String },
     description: { type: String },
     isActive: { type: Boolean, default: true },

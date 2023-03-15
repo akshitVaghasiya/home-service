@@ -8,9 +8,11 @@ const app = Router();
 
 import { decodeJwtTokenFn } from '../../../utilities/universal';
 import customer from "./customer";
+import service from "./service";
 
 /*********** Combine all Routes ********************/
 app.use("/customer", customer);
+app.use("/service", service);
 
 
 export default app;

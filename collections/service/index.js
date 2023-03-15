@@ -1,19 +1,19 @@
 import mongoose from 'mongoose';
 const serviceModel = new mongoose.Schema({
+    subcategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'subcategory' },
     serviceName: { type: String },
-    subcategoryId: { type: Schema.Types.ObjectId, ref: 'subcategory' },
-    serviceCharge: { type: Number},
+    // serviceCharge: { type: Number},
     image: { type: String },
     duration: { type: Number },
     price: { type: Number },
     description: { type: String },
-    included: [{ type: String }],
-    excluded: [{ type: String}],
-    query: [{
+    included: [String],
+    excluded: [String],
+    queryQue: [{
         question: { type: String },
-        answer: { type: String }, 
+        answer: { type: String },
     }],
-    isActive: { type: Boolean, default: true},
+    isActive: { type: Boolean, default: true },
     deletedAt: Number,
     isUpdated: Boolean,
     // createdAt: { type: Date, default: Date() },
