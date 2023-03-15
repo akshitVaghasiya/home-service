@@ -1,10 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 const subCategoryModel = new mongoose.Schema({
     subCategoryName: { type: String },
-    categoryId: { type: Schema.Types.ObjectId, ref: 'category' },
+    categoryId: { type: Schema.Types.ObjectId, ref: "Category", require: true},
     image: { type: String },
     description: { type: String },
     isActive: { type: Boolean, default: true },
+    isDelete: { type: Boolean, default: false },
     deletedAt: Number,
     isUpdated: Boolean,
     // createdAt: { type: Date, default: Date() },
