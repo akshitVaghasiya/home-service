@@ -10,7 +10,8 @@ import list from './list';
 import updatepassword from './updatepassword';
 import forgotpassword from './forgotpassword';
 import resetpassword from './resetpassword';
+import updatecustomer from './updatecustomer';
 
 
-export default [saveCustomer, login, list, updatepassword, forgotpassword, resetpassword];
+export default [saveCustomer, login, list, updatepassword, forgotpassword, resetpassword, updatecustomer];
 
