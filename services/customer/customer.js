@@ -4,7 +4,6 @@
  *
  */
 
-const ObjectId = require("mongodb").ObjectID;
 import dbService from "../../utilities/dbService";
 import {
   encryptpassword,

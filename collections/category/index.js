@@ -4,8 +4,9 @@ const categorySchema = new mongoose.Schema({
     image: { type: String },
     isActive: { type: Boolean, default: true },
     description: { type: String },
+    isDelete: { type: Boolean, default: false },
     deletedAt: Number,
-    isUpdated: Boolean,
+    isUpdated: Boolean
     // createdAt: { type: Date, default: Date() },
     // updatedAt: { type: Date, default: Date() },
 });
