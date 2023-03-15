@@ -237,3 +237,28 @@ export const resetPassword = async (req, res) => {
     message: "Password Reset Succesfully",
   };
 };
+
+/*************************** UpdateCustomer ***************************/
+export const updateCustomer = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+  console.log(payload)
+  console.log(userId)
+
+  let userData = await dbService.findOneRecord("customerModel", {
+    _id: userId,
+    isDeleted: false,
+  });
+
+  if (!userData) throw new Error("user not found!");
+
+  let project = await dbService.findOneAndUpdateRecord("customerModel",
+  { _id: userId },
+  { ...payload,
+    updatedAt: Date() },
+  {runValidators: true,
+  new: true}
+  );
+
+  return project
+}
