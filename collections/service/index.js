@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 const serviceModel = new mongoose.Schema({
     subcategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'subcategory' },
     serviceName: { type: String },
