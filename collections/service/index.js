@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 const serviceModel = new mongoose.Schema({
-    subcategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'subcategory' },
+    subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'subcategory' },
     serviceName: { type: String },
     // serviceCharge: { type: Number},
     image: { type: String },
@@ -14,6 +14,7 @@ const serviceModel = new mongoose.Schema({
         answer: { type: String },
     }],
     isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
     deletedAt: Number,
     isUpdated: Boolean,
     // createdAt: { type: Date, default: Date() },
