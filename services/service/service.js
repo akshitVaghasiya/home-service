@@ -8,7 +8,7 @@ export const addService = async (req, res) => {
 
     console.log("payload->", req);
 
-    let a = '[' + payload.queryQue?.replace(new RegExp('\r\n| ', 'g'), '') + ']';
+    let a = '[' + payload.FAQs?.replace(new RegExp('\r\n| ', 'g'), '') + ']';
 
     let data = {
         subcategoryId: payload.subcategoryId,
@@ -19,7 +19,7 @@ export const addService = async (req, res) => {
         included: payload.included?.split(','),
         excluded: payload.excluded?.split(','),
         image: filename,
-        queryQue: JSON.parse(a).map(obj => ({ ...obj })),
+        FAQs: JSON.parse(a).map(obj => ({ ...obj })),
     };
 
     console.log("data->", data);

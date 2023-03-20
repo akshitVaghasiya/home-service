@@ -79,7 +79,7 @@ let upload = multer({ storage: storage, fileFilter: fileFilter });
  *        type: array
  *        items:
  *          type: string    
- *      - name: queryQue
+ *      - name: FAQs
  *        description: enter excluded description.
  *        in: formData
  *        type: array
@@ -111,7 +111,7 @@ const dataSchema = Joi.object({
   excluded: Joi.string().required().label("excluded field"),
   // included: Joi.array().items(Joi.string()).required().label("included field"),
   // excluded: Joi.array().items(Joi.string()).required().label("excluded field"),
-  queryQue: Joi.string().required().label("queryQue field"),
+  FAQs: Joi.string().required().label("FAQs field"),
   // query: Joi.array().items(
   //   Joi.object({
   //     question: Joi.string().required().label("question"),

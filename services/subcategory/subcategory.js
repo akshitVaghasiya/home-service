@@ -3,10 +3,18 @@ import dbService from "../../utilities/dbService";
 // --------------- add category ----------------
 export const addSubCategory = async (req) => {
   const payload = req.body;
+  const { filename } = req.file;
 
   let subCategoryData = await dbService.findOneRecord("subCategoryModel", {
     subCategoryName: payload.subCategoryName
   });
+
+  let data = {
+    ...payload,
+    ...{
+      image: filename
+    }
+  }
 
   if (subCategoryData) {
     throw new Error("Subcategory Already Exists!");
@@ -20,14 +28,14 @@ export const addSubCategory = async (req) => {
     throw new Error("Category Not Exists!");
   }
 
-  let project = await dbService.createOneRecord("subCategoryModel", payload);
+  let project = await dbService.createOneRecord("subCategoryModel", data);
   // console.log("project data =>", project);
   return project;
 };
 
 // --------------- read all category ----------------
 export const readSubCategory = async (req) => {
-  let project = await dbService.findAllRecords("subCategoryModel", {isDelete: false});
+  let project = await dbService.findAllRecords("subCategoryModel", { isDelete: false });
 
   return project;
 }
@@ -40,7 +48,7 @@ export const updateSubCategory = async (req) => {
   let categoryData = await dbService.findOneRecord("categoryModel", {
     _id: payload.categoryId
   });
-  
+
   if (!categoryData) {
     throw new Error("Category Not Exists!");
   }
@@ -55,11 +63,11 @@ export const updateSubCategory = async (req) => {
     throw new Error("Subcategory Not Exists!");
   }
 
-  
+
   let project = await dbService.findOneAndUpdateRecord("subCategoryModel",
-  {_id: payload._id},
-  payload,
-  {runValidators: true, new: true}
+    { _id: payload._id },
+    payload,
+    { runValidators: true, new: true }
   );
 
   return project;
@@ -79,9 +87,9 @@ export const deleteSubCategory = async (req) => {
   }
 
   let project = await dbService.findOneAndUpdateRecord("subCategoryModel",
-  {_id: _id},
-  { deleteAt: Date.now(), isDelete: true},
-  {runValidators: true, new: true}
+    { _id: _id },
+    { deleteAt: Date.now(), isDelete: true },
+    { runValidators: true, new: true }
   );
 
   return project;

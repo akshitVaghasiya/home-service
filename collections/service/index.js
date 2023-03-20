@@ -9,7 +9,7 @@ const serviceModel = new mongoose.Schema({
     description: { type: String },
     included: [String],
     excluded: [String],
-    queryQue: [{
+    FAQs: [{
         question: { type: String },
         answer: { type: String },
     }],

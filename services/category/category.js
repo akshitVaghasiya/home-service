@@ -3,16 +3,25 @@ import dbService from "../../utilities/dbService";
 // --------------- add category ----------------
 export const addCategory = async (req) => {
   const payload = req.body;
+  const { filename } = req.file;
+
 
   let categoryData = await dbService.findOneRecord("categoryModel", {
     categoryName: payload.categoryName
   });
 
+  let data = {
+    ...payload,
+    ...{
+      image: filename
+    }
+  }
+
   if (categoryData) {
     throw new Error("Category Already Exists!");
   } else {
 
-    let project = await dbService.createOneRecord("categoryModel", payload);
+    let project = await dbService.createOneRecord("categoryModel", data);
     // console.log("project data =>", project);
 
     return project;
@@ -21,7 +30,7 @@ export const addCategory = async (req) => {
 
 // --------------- read all category ----------------
 export const readCategory = async (req) => {
-  let project = await dbService.findAllRecords("categoryModel", {isDelete: false});
+  let project = await dbService.findAllRecords("categoryModel", { isDelete: false });
 
   return project;
 }
@@ -38,11 +47,11 @@ export const updateCategory = async (req) => {
   if (!categoryData) {
     throw new Error("Category Not Exists!");
   }
-  
+
   let project = await dbService.findOneAndUpdateRecord("categoryModel",
-  {_id: payload._id},
-  payload,
-  {runValidators: true, new: true}
+    { _id: payload._id },
+    payload,
+    { runValidators: true, new: true }
   );
 
   return project;
@@ -62,9 +71,9 @@ export const deleteCategory = async (req) => {
   }
 
   let project = await dbService.findOneAndUpdateRecord("categoryModel",
-  {_id: _id},
-  { deleteAt: Date.now(), isDelete: true},
-  {runValidators: true, new: true}
+    { _id: _id },
+    { deleteAt: Date.now(), isDelete: true },
+    { runValidators: true, new: true }
   );
 
   return project;
