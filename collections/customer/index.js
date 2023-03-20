@@ -13,6 +13,10 @@ const customerSchema = new mongoose.Schema({
     email: { type: String },
     phone: { type: String },
     password: { type: String },
+    role: {
+        type: String,
+        default: 'user'
+    },
     loginToken: [
         {
             token: {
