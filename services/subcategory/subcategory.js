@@ -1,4 +1,5 @@
 import dbService from "../../utilities/dbService";
+const ObjectId = require("mongodb").ObjectID;
 
 // --------------- add category ----------------
 export const addSubCategory = async (req) => {
@@ -93,4 +94,19 @@ export const deleteSubCategory = async (req) => {
   );
 
   return project;
+}
+
+/********************** getSingleSubCategory **********************/
+export const getSubCategoryWithId = async (req, res) => {
+  let id = req.body.id;
+  console.log("body", req.body);
+
+  let serviceData = await dbService.findOneRecord("subCategoryModel",
+    {
+      _id: ObjectId(id),
+      isDeleted: false,
+    }
+  );
+
+  return serviceData;
 }

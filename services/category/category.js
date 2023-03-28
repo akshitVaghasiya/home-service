@@ -1,10 +1,13 @@
 import dbService from "../../utilities/dbService";
+const ObjectId = require("mongodb").ObjectID;
 
 // --------------- add category ----------------
 export const addCategory = async (req) => {
   const payload = req.body;
   const { filename } = req.file;
-
+  console.log("req.body->", req.body);
+  console.log("req.file->", req.file);
+  console.log("req->", req);
 
   let categoryData = await dbService.findOneRecord("categoryModel", {
     categoryName: payload.categoryName
@@ -37,20 +40,30 @@ export const readCategory = async (req) => {
 
 // -------------- update category --------------
 export const updateCategory = async (req) => {
+  console.log("req->",req);
+  let { params: id } = req;
   const payload = req.body;
+  const { filename } = req.file;
 
   let categoryData = await dbService.findOneRecord("categoryModel", {
-    _id: payload._id,
+    _id: ObjectId(id),
     isDelete: false
   });
+
+  let data = {
+    ...payload,
+    ...{
+      image: filename
+    }
+  }
 
   if (!categoryData) {
     throw new Error("Category Not Exists!");
   }
 
   let project = await dbService.findOneAndUpdateRecord("categoryModel",
-    { _id: payload._id },
-    payload,
+    { _id: ObjectId(id) },
+    data,
     { runValidators: true, new: true }
   );
 
