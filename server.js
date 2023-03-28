@@ -49,7 +49,7 @@ app.use(
   })
 );
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use('/image',express.static(path.join(__dirname, "/views")));
 var options = {};
 
 app.use(

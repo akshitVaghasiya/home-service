@@ -67,7 +67,7 @@ const dataSchema = Joi.object({
 });
 
 router.post('/add',
-  decodeJwtTokenFn,
+  // decodeJwtTokenFn,
   upload.single('image'),
   commonResolver.bind({
     modelService: addCategory,
