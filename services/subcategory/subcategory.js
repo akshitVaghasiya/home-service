@@ -36,14 +36,19 @@ export const addSubCategory = async (req) => {
 
 // --------------- read all category ----------------
 export const readSubCategory = async (req) => {
-  let project = await dbService.findAllRecords("subCategoryModel", { isDelete: false });
+  let project = await dbService.findAllRecords("subCategoryModel", { isDeleted: false });
 
   return project;
 }
 
 // -------------- update category --------------
 export const updateSubCategory = async (req) => {
-  const payload = req.body;
+  let payload = req.body;
+  const { filename } = req.file;
+  const { id } = req.query;
+
+  console.log("red-->", req);
+  // return
 
   // category exist or not
   let categoryData = await dbService.findOneRecord("categoryModel", {
@@ -56,31 +61,40 @@ export const updateSubCategory = async (req) => {
 
   // same subcategory available or not
   let subCategoryData = await dbService.findOneRecord("subCategoryModel", {
-    _id: payload._id,
-    isDelete: false
+    _id: id,
+    isDeleted: false
   });
 
   if (!subCategoryData) {
     throw new Error("Subcategory Not Exists!");
   }
 
+  if (filename) {
+    payload = {
+      ...payload,
+      ...{
+        image: filename
+      }
+    }
+  }
 
   let project = await dbService.findOneAndUpdateRecord("subCategoryModel",
-    { _id: payload._id },
+    { _id: id },
     payload,
     { runValidators: true, new: true }
   );
 
-  return project;
+  return "sub category update successfully.";
 }
 
 // -------------- delete category -------------
 export const deleteSubCategory = async (req) => {
-  const { _id } = req.body;
+  const { id } = req.body;
+  console.log("req-->", req);
 
   let subCategoryData = await dbService.findOneRecord("subCategoryModel", {
-    _id: _id,
-    isDelete: false
+    _id: ObjectId(id),
+    isDeleted: false
   });
 
   if (!subCategoryData) {
@@ -88,12 +102,12 @@ export const deleteSubCategory = async (req) => {
   }
 
   let project = await dbService.findOneAndUpdateRecord("subCategoryModel",
-    { _id: _id },
-    { deleteAt: Date.now(), isDelete: true },
+    { _id: ObjectId(id) },
+    { deleteAt: Date.now(), isDeleted: true },
     { runValidators: true, new: true }
   );
 
-  return project;
+  return "Record Deleted Successfully!";
 }
 
 /********************** getSingleSubCategory **********************/

@@ -30,17 +30,19 @@ let upload = multer({ storage: storage, fileFilter: fileFilter });
 
 /**
  * @swagger
- * /api/v1/category/update/{id}:
- *  put:
+ * /api/v1/category/update:
+ *  post:
  *   tags: ["Category"]
  *   summary: Save category information.
  *   description: api used for Save category information.
  *   consumes:
  *      - application/x-www-form-urlencoded
  *   parameters:
- *      - in: path
+ *      - in: query
  *        name: id
- *        required: true
+ *        schema:
+ *          type: string
+ *        description: category Id
  *      - name: categoryName
  *        description: enter category Name.
  *        in: formData
@@ -69,7 +71,7 @@ const dataSchema = Joi.object({
   description: Joi.string().required().label("description"),
 });
 
-router.put('/update/:id',
+router.post('/update',
   upload.single('image'),
   commonResolver.bind({
     modelService: updateCategory,

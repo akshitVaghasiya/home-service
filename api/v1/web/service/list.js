@@ -12,7 +12,7 @@ const router = new Router();
 
 /**
  * @swagger
- * /api/v1/service/getservice:
+ * /api/v1/service/all:
  *  post:
  *   tags: ["Service"]
  *   summary: get Service information.
@@ -35,7 +35,7 @@ const router = new Router();
  *      - bearerAuth: [] 
  */
 
-router.post('/getservice',
+router.post('/all',
     commonResolver.bind({
         modelService: getService,
         isRequestValidateRequired: false,

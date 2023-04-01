@@ -32,9 +32,14 @@ const router = new Router();
  */
 
 const dataSchema = Joi.object({
-  _id: Joi.string().required().label("_id"),
+  id: Joi.string().required().label("id"),
 });
 
-router.post('/delete', commonResolver.bind({ modelService: deleteSubCategory, isRequestValidateRequired: true, schemaValidate: dataSchema }))
+router.post('/delete',
+  commonResolver.bind({
+    modelService: deleteSubCategory,
+    isRequestValidateRequired: true,
+    schemaValidate: dataSchema
+  }));
 
 export default router;

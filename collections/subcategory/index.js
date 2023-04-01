@@ -5,7 +5,7 @@ const subCategoryModel = new mongoose.Schema({
     image: { type: String },
     description: { type: String },
     isActive: { type: Boolean, default: true },
-    isDelete: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     deletedAt: Number,
     isUpdated: Boolean,
     // createdAt: { type: Date, default: Date() },

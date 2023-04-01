@@ -41,7 +41,7 @@ const dataSchema = Joi.object({
 });
 
 router.post('/getservicewithid',
-    decodeJwtTokenFn,
+    // decodeJwtTokenFn,
     commonResolver.bind({
         modelService: getServiceWithId,
         isRequestValidateRequired: true,
