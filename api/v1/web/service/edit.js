@@ -35,7 +35,7 @@ let upload = multer({ storage: storage, fileFilter: fileFilter });
 
 /**
  * @swagger
- * /api/v1/service/edit:
+ * /api/v1/service/update:
  *  post:
  *   tags: ["Service"]
  *   summary: Update service information.
@@ -105,7 +105,7 @@ let upload = multer({ storage: storage, fileFilter: fileFilter });
  */
 
 const dataSchema = Joi.object({
-  subcategoryId: Joi.string().required().label("subcategoryId"),
+  subCategoryId: Joi.string().required().label("subCategoryId"),
   serviceName: Joi.string().required().label("serviceName"),
   // serviceCharge: Joi.number().required().label("serviceCharge"),
   // image: Joi.string().required().label("image"),
@@ -116,7 +116,7 @@ const dataSchema = Joi.object({
   excluded: Joi.string().required().label("excluded field"),
   // included: Joi.array().items(Joi.string()).required().label("included field"),
   // excluded: Joi.array().items(Joi.string()).required().label("excluded field"),
-  queryQue: Joi.string().required().label("queryQue field"),
+  FAQs: Joi.string().required().label("FAQs field"),
   // query: Joi.array().items(
   //   Joi.object({
   //     question: Joi.string().required().label("question"),
@@ -125,8 +125,8 @@ const dataSchema = Joi.object({
   // ),
 });
 
-router.post('/edit',
-  decodeJwtTokenFn,
+router.post('/update',
+  // decodeJwtTokenFn,
   upload.single('image'),
   commonResolver.bind({
     modelService: updateService,

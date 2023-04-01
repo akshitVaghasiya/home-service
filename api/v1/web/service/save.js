@@ -43,7 +43,7 @@ let upload = multer({ storage: storage, fileFilter: fileFilter });
  *   consumes:
  *      - application/x-www-form-urlencoded
  *   parameters:
- *      - name: subcategoryId
+ *      - name: subCategoryId
  *        description: enter sub category id.
  *        in: formData
  *        type: string
@@ -100,7 +100,7 @@ let upload = multer({ storage: storage, fileFilter: fileFilter });
  */
 
 const dataSchema = Joi.object({
-  subcategoryId: Joi.string().required().label("subcategoryId"),
+  subCategoryId: Joi.string().required().label("subCategoryId"),
   serviceName: Joi.string().required().label("serviceName"),
   // serviceCharge: Joi.number().required().label("serviceCharge"),
   // image: Joi.string().required().label("image"),
@@ -121,7 +121,7 @@ const dataSchema = Joi.object({
 });
 
 router.post('/add',
-  decodeJwtTokenFn,
+  // decodeJwtTokenFn,
   upload.single('image'),
   commonResolver.bind({
     modelService: addService,

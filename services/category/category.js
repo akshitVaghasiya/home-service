@@ -27,35 +27,62 @@ export const addCategory = async (req) => {
     let project = await dbService.createOneRecord("categoryModel", data);
     // console.log("project data =>", project);
 
-    return project;
+    return {
+      data: project,
+      message: "new category added successfully."
+    };
   }
 };
 
 // --------------- read all category ----------------
 export const readCategory = async (req) => {
-  let project = await dbService.findAllRecords("categoryModel", { isDelete: false });
+  let project = await dbService.findAllRecords("categoryModel", { isDeleted: false });
 
   return project;
 }
 
 // -------------- update category --------------
 export const updateCategory = async (req) => {
-  console.log("req->",req);
-  let { params: id } = req;
-  const payload = req.body;
+  console.log("req->", req);
+  const { id } = req.query;
+  let payload = req.body;
   const { filename } = req.file;
 
   let categoryData = await dbService.findOneRecord("categoryModel", {
     _id: ObjectId(id),
-    isDelete: false
+    isDeleted: false
   });
 
-  let data = {
-    ...payload,
-    ...{
-      image: filename
+  if (!categoryData) {
+    throw new Error("Category Not Exists!");
+  }
+
+  if (filename) {
+    payload = {
+      ...payload,
+      ...{
+        image: filename
+      }
     }
   }
+
+  let project = await dbService.findOneAndUpdateRecord("categoryModel",
+    { _id: ObjectId(id) },
+    payload,
+    { runValidators: true, new: true }
+  );
+
+  return "sub category updated successfully.";
+}
+
+// -------------- delete category -------------
+export const deleteCategory = async (req) => {
+  const { id } = req.body;
+
+  let categoryData = await dbService.findOneRecord("categoryModel", {
+    _id: ObjectId(id),
+    isDeleted: false
+  });
 
   if (!categoryData) {
     throw new Error("Category Not Exists!");
@@ -63,31 +90,9 @@ export const updateCategory = async (req) => {
 
   let project = await dbService.findOneAndUpdateRecord("categoryModel",
     { _id: ObjectId(id) },
-    data,
+    { deleteAt: Date.now(), isDeleted: true },
     { runValidators: true, new: true }
   );
 
-  return project;
-}
-
-// -------------- delete category -------------
-export const deleteCategory = async (req) => {
-  const { _id } = req.body;
-
-  let categoryData = await dbService.findOneRecord("categoryModel", {
-    _id: _id,
-    isDelete: false
-  });
-
-  if (!categoryData) {
-    throw new Error("Category Not Exists!");
-  }
-
-  let project = await dbService.findOneAndUpdateRecord("categoryModel",
-    { _id: _id },
-    { deleteAt: Date.now(), isDelete: true },
-    { runValidators: true, new: true }
-  );
-
-  return project;
+  return "sub category deleted successfully.";
 }
