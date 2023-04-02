@@ -41,7 +41,7 @@ const dataSchema = Joi.object({
 });
 
 router.post('/delete',
-  decodeJwtTokenFn,
+  // decodeJwtTokenFn,
   commonResolver.bind({
     modelService: deleteService,
     isRequestValidateRequired: true,

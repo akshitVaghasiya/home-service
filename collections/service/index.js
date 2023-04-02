@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 const serviceModel = new mongoose.Schema({
-    subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'subcategory' },
+    subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'subcategory', require: true },
     serviceName: { type: String },
     // serviceCharge: { type: Number},
     image: { type: String },

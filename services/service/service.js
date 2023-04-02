@@ -3,114 +3,141 @@ import dbService from "../../utilities/dbService";
 
 /********************** addservice **********************/
 export const addService = async (req, res) => {
-    const payload = req.body;
-    const { filename } = req.file;
+	const payload = req.body;
+	const { filename } = req.file;
 
-    console.log("payload->", req);
+	// let a = '[' + payload.FAQs?.replace(new RegExp('\r\n| ', 'g'), '') + ']';
+	let serviceData = await dbService.findOneRecord("serviceModel", {
+		serviceName: payload.serviceName
+	});
 
-    let a = '[' + payload.FAQs?.replace(new RegExp('\r\n| ', 'g'), '') + ']';
+	if (serviceData) {
+		throw new Error("Service Already Exists!");
+	} else {
 
-    let data = {
-        subcategoryId: payload.subcategoryId,
-        serviceName: payload.serviceName,
-        duration: payload.duration,
-        price: payload.price,
-        description: payload.description,
-        included: payload.included?.split(','),
-        excluded: payload.excluded?.split(','),
-        image: filename,
-        FAQs: JSON.parse(a).map(obj => ({ ...obj })),
-    };
+		let data = {
+			subCategoryId: payload?.subCategoryId,
+			serviceName: payload?.serviceName,
+			duration: payload?.duration,
+			price: payload?.price,
+			description: payload?.description,
+			included: payload?.included?.split(','),
+			excluded: payload?.excluded?.split(','),
+			// FAQs: JSON.parse(a).map(obj => ({ ...obj })),
+			FAQs: JSON.parse(payload?.FAQs),
+		};
 
-    console.log("data->", data);
+		if (filename) {
+			data = {
+				...data,
+				...{ image: filename }
+			}
+		}
 
-    let project = await dbService.createOneRecord("serviceModel", data);
-    console.log("project data=>", project);
+		let project = await dbService.createOneRecord("serviceModel", data);
+		console.log("project data=>", project);
 
-    return project;
+		return {
+			data: project,
+			message: "new service added successfully."
+		};
+	}
 };
 
 /********************** updateService **********************/
 export const updateService = async (req, res) => {
-    const payload = req.body;
-    const { filename } = req.file;
-    const { id } = req.query;
+	const payload = req.body;
+	const { filename } = req.file;
+	const { id } = req.query;
 
-    console.log("payload->", req);
+	let serviceData = await dbService.findOneRecord("serviceModel", {
+		_id: ObjectId(id),
+		isDeleted: false
+	});
 
-    let a = '[' + payload.queryQue?.replace(new RegExp('\r\n| ', 'g'), '') + ']';
+	if (!serviceData) {
+		throw new Error("Service Not Exists!");
+	}
 
-    let data = {
-        subcategoryId: payload?.subcategoryId,
-        serviceName: payload?.serviceName,
-        duration: payload?.duration,
-        price: payload?.price,
-        description: payload?.description,
-        included: payload?.included?.split(','),
-        excluded: payload?.excluded?.split(','),
-        image: filename,
-        queryQue: JSON.parse(a).map(obj => ({ ...obj })),
-    };
+	let data = {
+		subCategoryId: payload?.subCategoryId,
+		serviceName: payload?.serviceName,
+		duration: payload?.duration,
+		price: payload?.price,
+		description: payload?.description,
+		included: payload?.included?.split(','),
+		excluded: payload?.excluded?.split(','),
+		// FAQs: JSON.parse(a).map(obj => ({ ...obj })),
+		FAQs: JSON.parse(payload?.FAQs),
+	};
 
-    console.log("data->", data);
-    let project = await dbService.findOneAndUpdateRecord("serviceModel",
-        {
-            _id: id,
-            isDeleted: false
-        },
-        data,
-        { new: true }
-    );
+	if (filename) {
+		data = {
+			...data,
+			...{ image: filename }
+		}
+	}
 
-    console.log("project data=>", project);
+	let project = await dbService.findOneAndUpdateRecord("serviceModel",
+		{
+			_id: ObjectId(id),
+			isDeleted: false
+		},
+		data,
+		{ new: true }
+	);
 
-    return project;
+	return {
+		data: project,
+		message: "new service added successfully."
+	};
+	// }
 };
 
 /********************** updateService **********************/
 export const deleteService = async (req, res) => {
-    let id = req.body.id;
+	let id = req.body.id;
 
-    let where = {};
-    where["_id"] = id;
-    where["isDeleted"] = false;
+	let where = {};
+	where["_id"] = id;
+	where["isDeleted"] = false;
 
-    let serviceData = await dbService.findOneAndUpdateRecord("serviceModel",
-        where,
-        {
-            isDeleted: true,
-        });
+	let serviceData = await dbService.findOneAndUpdateRecord("serviceModel",
+		where,
+		{
+			isDeleted: true,
+		});
 
-    return "service deleted successfully";
+	return "service deleted successfully";
 
 }
 
 /********************** getSingleService **********************/
 export const getServiceWithId = async (req, res) => {
-    let id = req.body.id;
-    console.log("body", req.body);
+	let id = req.body.id;
+	console.log("body", req.body);
 
-    let serviceData = await dbService.findOneRecord("serviceModel",
-        {
-            _id: id,
-            isDeleted: false,
-        }
-    );
+	let serviceData = await dbService.findOneRecord("serviceModel",
+		{
+			_id: id,
+			isDeleted: false,
+		}
+	);
 
-    return serviceData;
+	return serviceData;
 }
 
 /********************** getAllService **********************/
 export const getService = async (req, res) => {
-    let { subCategoryId } = req.body;
-    console.log("body", req.body);
+	// let { subCategoryId } = req.body;
+	console.log("body", req.body);
 
-    let serviceData = await dbService.findAllRecords("serviceModel",
-        {
-            subCategoryId: ObjectId(subCategoryId),
-            isDeleted: false,
-        }
-    );
+	let serviceData = await dbService.findAllRecords("serviceModel",
+		{
+			// subCategoryId: ObjectId(subCategoryId),
+			isDeleted: false,
+		}
+	);
 
-    return serviceData;
+	return serviceData;
 }
