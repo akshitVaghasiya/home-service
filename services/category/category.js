@@ -5,9 +5,6 @@ const ObjectId = require("mongodb").ObjectID;
 export const addCategory = async (req) => {
   const payload = req.body;
   const { filename } = req.file;
-  console.log("req.body->", req.body);
-  console.log("req.file->", req.file);
-  console.log("req->", req);
 
   let categoryData = await dbService.findOneRecord("categoryModel", {
     categoryName: payload.categoryName
@@ -43,7 +40,6 @@ export const readCategory = async (req) => {
 
 // -------------- update category --------------
 export const updateCategory = async (req) => {
-  console.log("req->", req);
   const { id } = req.query;
   let payload = req.body;
   const { filename } = req.file;

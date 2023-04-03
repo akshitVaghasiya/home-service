@@ -130,7 +130,6 @@ export const getServiceWithId = async (req, res) => {
 /********************** getAllService **********************/
 export const getService = async (req, res) => {
 	// let { subCategoryId } = req.body;
-	console.log("body", req.body);
 
 	let serviceData = await dbService.findAllRecords("serviceModel",
 		{

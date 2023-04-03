@@ -6,6 +6,7 @@
 
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
 import swaggerUi from "swagger-ui-express";
@@ -34,6 +35,8 @@ app.use(
   })
 );
 app.use(logger("dev"));
+
+app.use(cookieParser());
 
 app.use(
   bodyParser.json({
