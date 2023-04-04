@@ -66,7 +66,10 @@ export const generateJwtTokenFn = async (userIdObj) => {
   
   /*********** Test Decode JWT token *************/
   export const decodeJwtTokenFn= (req, res, next) => {
-    const Authorization = req["headers"]["Authorization"] || req["headers"]["authorization"];
+    // const Authorization = req["headers"]["Authorization"] || req["headers"]["authorization"];
+    console.log("cookie====>>>>token", req.cookies)
+
+    const Authorization = req.cookies.token
   
     jwt.verify(Authorization, jwtKey, function (err, decoded) {
       if (err) {

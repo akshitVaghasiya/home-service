@@ -84,8 +84,16 @@ export const onLogin = async (req, res, next) => {
     { new: true }
   );
 
-  res.setHeader("Access-Control-Expose-Headers", "token");
-  res.setHeader("token", data.loginToken[data.loginToken.length - 1].token);
+  // res.setHeader("Access-Control-Expose-Headers", "token");
+  // res.setHeader("token", data.loginToken[data.loginToken.length - 1].token);
+
+  const options = {
+    expires: new Date(
+      Date.now() + 10 * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  res.cookie("token", token, options)
 
   return {
     email: data.email,
