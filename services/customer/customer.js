@@ -14,7 +14,7 @@ import {
 import { sendEmail } from "../../utilities/sendEmail";
 
 /*************************** addCustomer ***************************/
-export const addCustomer = async (req) => {
+export const addCustomer = async (req, res) => {
   console.log("req service =>", req.body);
   const { email } = req.body;
   console.log("email =>", email);
@@ -32,10 +32,33 @@ export const addCustomer = async (req) => {
     req.body.password = password;
     console.log("after we have req.body.password =>", req.body.password);
     //let project = await customerModel.saveQuery(req.body);
-    let project = await dbService.createOneRecord("customerModel", req.body);
+    let userData = await dbService.createOneRecord("customerModel", req.body);
     console.log("project data =>", project);
 
-    return project;
+    let token = await generateJwtTokenFn({ userId: userData._id });
+    let updateData = {
+      $push: {
+        loginToken: {
+          token: token,
+        },
+      },
+      lastLoginDate: Date.now(),
+    };
+
+    let data = await dbService.findOneAndUpdateRecord(
+      "customerModel",
+      { _id: userData._id },
+      updateData,
+      { new: true }
+    );
+
+    const options = {
+      expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+    res.cookie("token", token, options);
+
+    return data;
   }
 };
 
@@ -88,12 +111,10 @@ export const onLogin = async (req, res, next) => {
   // res.setHeader("token", data.loginToken[data.loginToken.length - 1].token);
 
   const options = {
-    expires: new Date(
-      Date.now() + 10 * 24 * 60 * 60 * 1000
-    ),
+    expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
     httpOnly: true,
   };
-  res.cookie("token", token, options)
+  res.cookie("token", token, options);
 
   return {
     email: data.email,
@@ -105,7 +126,9 @@ export const onLogin = async (req, res, next) => {
 /*************************** getCustomer ***************************/
 export const getCustomer = async (entry) => {
   console.log("entry=>", entry);
-  let { user: { userId }, } = entry
+  let {
+    user: { userId },
+  } = entry;
   console.log("userId=>", userId);
 
   let contractorData = await dbService.findAllRecords("customerModel", {
@@ -138,7 +161,8 @@ export const updateCustomerPassword = async (req, res) => {
   let password = await encryptpassword(req.body.newPassword);
   req.body.oldPassword = password;
 
-  let project = await dbService.findOneAndUpdateRecord("customerModel",
+  let project = await dbService.findOneAndUpdateRecord(
+    "customerModel",
     { _id: userData._id },
     {
       password: password,
@@ -148,7 +172,7 @@ export const updateCustomerPassword = async (req, res) => {
   );
 
   return project;
-}
+};
 
 /*************************** forgotPassword ***************************/
 export const forgotPassword = async (req, res) => {
@@ -157,7 +181,8 @@ export const forgotPassword = async (req, res) => {
 
   let resetPasswordToken = await generateRandom();
 
-  let userData = await dbService.findOneAndUpdateRecord("customerModel",
+  let userData = await dbService.findOneAndUpdateRecord(
+    "customerModel",
     {
       // _id: userId,
       email: payload.email,
@@ -169,7 +194,6 @@ export const forgotPassword = async (req, res) => {
     },
     { new: true }
   );
-
 
   if (!userData) throw new Error("something wrong!");
 
@@ -189,7 +213,6 @@ export const forgotPassword = async (req, res) => {
     return {
       message: emailSuccessMessage,
     };
-
   } catch (error) {
     // let removeToken = await dbService.findOneAndUpdateRecord("customerModel",
     //   {
@@ -205,7 +228,7 @@ export const forgotPassword = async (req, res) => {
     // console.log("in catch");
     throw new Error("Email Not send! something wrong please try again.");
   }
-}
+};
 
 /*************************** Reset Password from Link ***************************/
 export const resetPassword = async (req, res) => {
@@ -224,13 +247,15 @@ export const resetPassword = async (req, res) => {
 
   console.log("userData->", userData);
 
-  if (!userData) throw new Error("Reset Password Token is invalid or has been expired", 400);
+  if (!userData)
+    throw new Error("Reset Password Token is invalid or has been expired", 400);
 
   let password = await encryptpassword(payload.password);
 
-  let result = await dbService.findOneAndUpdateRecord("customerModel",
+  let result = await dbService.findOneAndUpdateRecord(
+    "customerModel",
     {
-      _id: userData._id
+      _id: userData._id,
     },
     {
       $set: { password: password },
@@ -249,8 +274,8 @@ export const resetPassword = async (req, res) => {
 export const updateCustomer = async (req, res) => {
   const payload = req.body;
   const { userId } = req.user;
-  console.log(payload)
-  console.log(userId)
+  console.log(payload);
+  console.log(userId);
 
   let userData = await dbService.findOneRecord("customerModel", {
     _id: userId,
@@ -259,13 +284,12 @@ export const updateCustomer = async (req, res) => {
 
   if (!userData) throw new Error("user not found!");
 
-  let project = await dbService.findOneAndUpdateRecord("customerModel",
-  { _id: userId },
-  { ...payload,
-    updatedAt: Date() },
-  {runValidators: true,
-  new: true}
+  let project = await dbService.findOneAndUpdateRecord(
+    "customerModel",
+    { _id: userId },
+    { ...payload, updatedAt: Date() },
+    { runValidators: true, new: true }
   );
 
-  return project
-}
+  return project;
+};
