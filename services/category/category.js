@@ -1,5 +1,8 @@
 import dbService from "../../utilities/dbService";
 const ObjectId = require("mongodb").ObjectID;
+import { unlink } from 'node:fs';
+const path = require('path');
+const baseDir = path.resolve(process.cwd());
 
 // --------------- add category ----------------
 export const addCategory = async (req) => {
@@ -61,8 +64,19 @@ export const updateCategory = async (req) => {
     payload = {
       ...payload,
       ...{
-        image: filename
+        image: filename,
       }
+    };
+
+    if (categoryData.image) {
+      const oldFileName = categoryData.image;
+      const directoryPath = baseDir + "/views/categoryImages/";
+      unlink(directoryPath + oldFileName, (err) => {
+        if (err) {
+          console.log("err-->", err)
+        }
+        console.log(`image successfully deleted ${oldFileName}`);
+      });
     }
   }
 
@@ -72,7 +86,7 @@ export const updateCategory = async (req) => {
     { runValidators: true, new: true }
   );
 
-  return "sub category updated successfully.";
+  return "category updated successfully.";
 }
 
 // -------------- delete category -------------

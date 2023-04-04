@@ -84,7 +84,7 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1)
 })
 app.get("/", (req, res) =>
-  res.send(`<h1>Home Service App ${env} environment</h1>`)
+  res.send(`<h1>Home Service App ${env} environment</h1> ${__dirname}`)
 );
 
 // app.listen(port, () => console.log(`Backend is running on port ${port}`));
