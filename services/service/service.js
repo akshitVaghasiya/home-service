@@ -1,5 +1,8 @@
 const ObjectId = require("mongodb").ObjectID;
 import dbService from "../../utilities/dbService";
+import { unlink } from 'node:fs';
+const path = require('path');
+const baseDir = path.resolve(process.cwd());
 
 /********************** addservice **********************/
 export const addService = async (req, res) => {
@@ -76,6 +79,18 @@ export const updateService = async (req, res) => {
 			...data,
 			...{ image: filename }
 		}
+
+		if (serviceData.image) {
+			const oldFileName = serviceData.image;
+			const directoryPath = baseDir + "/views/serviceImages/";
+
+			unlink(directoryPath + oldFileName, (err) => {
+				if (err) {
+					console.log("err-->", err)
+				}
+				console.log(`image successfully deleted ${oldFileName}`);
+			});
+		}
 	}
 
 	let project = await dbService.findOneAndUpdateRecord("serviceModel",
@@ -89,7 +104,7 @@ export const updateService = async (req, res) => {
 
 	return {
 		data: project,
-		message: "new service added successfully."
+		message: "service updated successfully."
 	};
 	// }
 };
