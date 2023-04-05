@@ -1,4 +1,5 @@
 const ObjectId = require("mongodb").ObjectID;
+import mongoose from "mongoose";
 import dbService from "../../utilities/dbService";
 import { unlink } from 'node:fs';
 const path = require('path');
@@ -203,4 +204,32 @@ export const getService = async (req, res) => {
 		count: totalrecord,
 		limit: limit,
 	};
+}
+
+/********************** getServiceBySubCategory **********************/
+export const getServiceBySubCategory = async (req, res) => {
+  let name = req.body.subCategoryName;
+
+  let id = await dbService.findOneRecord("subCategoryModel",
+  {
+    subCategoryName: name,
+    isDeleted: false,
+  },
+  {
+    project: {_id: 1}
+  })
+
+  if (!id) {
+    throw new Error("Subcategory not available");
+  }
+
+  let services = await dbService.findAllRecords("serviceModel",
+    {
+      categoryId: mongoose.Types.ObjectId(id),
+      isDeleted: false,
+    }
+  );
+
+  return services;
+
 }
