@@ -5,6 +5,6 @@ import { readCategory } from "../../../../services/category/category";
 const router = new Router();
 
 
-router.get('/all', commonResolver.bind({ modelService: readCategory, isRequestValidateRequired: false, schemaValidate: {} }))
+router.post('/all', commonResolver.bind({ modelService: readCategory, isRequestValidateRequired: false, schemaValidate: {} }))
 
 export default router;

@@ -36,9 +36,53 @@ export const addCategory = async (req) => {
 
 // --------------- read all category ----------------
 export const readCategory = async (req) => {
-  let project = await dbService.findAllRecords("categoryModel", { isDeleted: false });
+  let postData = req.body;
+  console.log("postdata=>", postData);
+  let { page = 1, limit = 0 } = req.body;
+  let skip = limit * page - limit;
+  let where = {
+    isDeleted: false,
+  };
 
-  return project;
+  if (postData.searchText) {
+    where = {
+      ...where,
+      ...{
+        $or: [
+          { categoryName: { $regex: postData.searchText, $options: "i" } },
+        ],
+      },
+    };
+  }
+
+  let sort = {};
+
+  if (postData.sortBy && postData.sortMode) {
+    if (postData.sortBy) {
+      sort[postData.sortBy] = postData.sortMode;
+      console.log("in if sort");
+    }
+  } else {
+    sort["_id"] = -1;
+  }
+  console.log("where=>", where);
+
+  let totalrecord = await dbService.recordsCount("categoryModel", where);
+  let results = await dbService.findManyRecordsWithPagination("categoryModel",
+    where,
+    {
+      sort,
+      skip,
+      limit
+    }
+  );
+
+  return {
+    items: results,
+    page: page,
+    count: totalrecord,
+    limit: limit,
+  };
 }
 
 // -------------- update category --------------

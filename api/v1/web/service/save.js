@@ -112,6 +112,7 @@ const dataSchema = Joi.object({
   // included: Joi.array().items(Joi.string()).required().label("included field"),
   // excluded: Joi.array().items(Joi.string()).required().label("excluded field"),
   FAQs: Joi.string().required().label("FAQs field"),
+  isActive: Joi.string().required().label("isActive"),
   // query: Joi.array().items(
   //   Joi.object({
   //     question: Joi.string().required().label("question"),

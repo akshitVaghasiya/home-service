@@ -64,6 +64,7 @@ const dataSchema = Joi.object({
   categoryName: Joi.string().required().label("categoryName"),
   // image: Joi.string().required().label("image"),
   description: Joi.string().required().label("description"),
+  isActive: Joi.string().required().label("isActive"),
 });
 
 router.post('/add',

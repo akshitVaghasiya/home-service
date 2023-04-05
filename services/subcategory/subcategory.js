@@ -7,6 +7,7 @@ const baseDir = path.resolve(process.cwd());
 // --------------- add category ----------------
 export const addSubCategory = async (req) => {
   const payload = req.body;
+  console.log("payload->", payload);
   const { filename } = req.file;
 
   let subCategoryData = await dbService.findOneRecord("subCategoryModel", {
@@ -39,9 +40,60 @@ export const addSubCategory = async (req) => {
 
 // --------------- read all category ----------------
 export const readSubCategory = async (req) => {
-  let project = await dbService.findAllRecords("subCategoryModel", { isDeleted: false });
+  let postData = req.body;
+  console.log("postdata=>", postData);
+  let { page = 1, limit = 0 } = req.body;
+  let skip = limit * page - limit;
+  let where = {
+    isDeleted: false,
+  };
 
-  return project;
+  if (postData.searchText) {
+    where = {
+      ...where,
+      ...{
+        $or: [
+          { subCategoryName: { $regex: postData.searchText, $options: "i" } },
+        ],
+      },
+    };
+  }
+  if (postData.selectText) {
+    where = {
+      ...where,
+      ...{
+        categoryId: { $in: postData.selectText }
+      },
+    };
+  }
+  let sort = {};
+
+  if (postData.sortBy && postData.sortMode) {
+    if (postData.sortBy) {
+      sort[postData.sortBy] = postData.sortMode;
+      console.log("in if sort");
+    }
+  } else {
+    sort["_id"] = -1;
+  }
+  console.log("where=>", where);
+
+  let totalrecord = await dbService.recordsCount("subCategoryModel", where);
+  let results = await dbService.findManyRecordsWithPagination("subCategoryModel",
+    where,
+    {
+      sort,
+      skip,
+      limit
+    }
+  );
+
+  return {
+    items: results,
+    page: page,
+    count: totalrecord,
+    limit: limit,
+  };
 }
 
 // -------------- update category --------------
@@ -83,7 +135,7 @@ export const updateSubCategory = async (req) => {
     if (subCategoryData.image) {
       const oldFileName = subCategoryData.image;
       const directoryPath = baseDir + "/views/subCategoryImages/";
-      
+
       unlink(directoryPath + oldFileName, (err) => {
         if (err) {
           console.log("err-->", err)

@@ -16,10 +16,10 @@ export const onLogin = async (req, res, next) => {
     isDeleted: false,
   });
   if (!userData) throw new Error("Admin not found");
-  
+
   let match = await decryptPassword(payload.password, userData.password);
   if (!match) throw new Error("Password Invalid");
-  if (userData.isMailVerified == false) throw new Error("Please verify email");
+  // if (userData.isMailVerified == false) throw new Error("Please verify email");
 
   if (userData?.loginToken) {
     if (userData?.loginToken?.length >= 1) {
@@ -30,8 +30,8 @@ export const onLogin = async (req, res, next) => {
           $pop: { loginToken: -1 },
         },
         { new: true }
-        );
-      }
+      );
+    }
   }
 
   let token = await generateJwtTokenFn({ userId: userData._id });
@@ -43,13 +43,13 @@ export const onLogin = async (req, res, next) => {
     },
     lastLoginDate: Date.now(),
   };
-  
+
   let data = await dbService.findOneAndUpdateRecord(
     "customerModel",
     { _id: userData._id },
     updateData,
     { new: true }
-    );
+  );
 
   // res.setHeader("Access-Control-Expose-Headers", "token");
   // res.setHeader("token", data.loginToken[data.loginToken.length - 1].token);
@@ -77,7 +77,7 @@ export const getAdminDetail = async (req, res, next) => {
     isDeleted: false,
   });
 
-  return{
+  return {
     ...admin._doc
   };
 };

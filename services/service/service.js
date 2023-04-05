@@ -7,6 +7,7 @@ const baseDir = path.resolve(process.cwd());
 /********************** addservice **********************/
 export const addService = async (req, res) => {
 	const payload = req.body;
+	console.log("payload-->", payload);
 	const { filename } = req.file;
 
 	// let a = '[' + payload.FAQs?.replace(new RegExp('\r\n| ', 'g'), '') + ']';
@@ -24,6 +25,7 @@ export const addService = async (req, res) => {
 			duration: payload?.duration,
 			price: payload?.price,
 			description: payload?.description,
+			isActive: payload?.isActive,
 			included: payload?.included?.split(','),
 			excluded: payload?.excluded?.split(','),
 			// FAQs: JSON.parse(a).map(obj => ({ ...obj })),
@@ -68,6 +70,7 @@ export const updateService = async (req, res) => {
 		duration: payload?.duration,
 		price: payload?.price,
 		description: payload?.description,
+		isActive: payload?.isActive,
 		included: payload?.included?.split(','),
 		excluded: payload?.excluded?.split(','),
 		// FAQs: JSON.parse(a).map(obj => ({ ...obj })),
@@ -144,14 +147,60 @@ export const getServiceWithId = async (req, res) => {
 
 /********************** getAllService **********************/
 export const getService = async (req, res) => {
-	// let { subCategoryId } = req.body;
+	let postData = req.body;
+	// console.log("postdata=>", postData);
+	let { page = 1, limit = 0 } = req.body;
+	let skip = limit * page - limit;
+	let where = {
+		isDeleted: false,
+	};
 
-	let serviceData = await dbService.findAllRecords("serviceModel",
+	if (postData.searchText) {
+		where = {
+			...where,
+			...{
+				$or: [
+					{ serviceName: { $regex: postData.searchText, $options: "i" } },
+				],
+			},
+		};
+	}
+
+	if (postData.selectText) {
+		where = {
+			...where,
+			...{
+				subCategoryId: { $in: postData.selectText }
+			},
+		};
+	}
+
+	let sort = {};
+
+	if (postData.sortBy && postData.sortMode) {
+		if (postData.sortBy) {
+			sort[postData.sortBy] = postData.sortMode;
+			console.log("in if sort");
+		}
+	} else {
+		sort["_id"] = -1;
+	}
+	// console.log("where=>", where);
+
+	let totalrecord = await dbService.recordsCount("serviceModel", where);
+	let results = await dbService.findManyRecordsWithPagination("serviceModel",
+		where,
 		{
-			// subCategoryId: ObjectId(subCategoryId),
-			isDeleted: false,
+			sort,
+			skip,
+			limit
 		}
 	);
 
-	return serviceData;
+	return {
+		items: results,
+		page: page,
+		count: totalrecord,
+		limit: limit,
+	};
 }

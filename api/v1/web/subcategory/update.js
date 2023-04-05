@@ -73,7 +73,8 @@ const dataSchema = Joi.object({
   subCategoryName: Joi.string().required().label("subCategoryName"),
   categoryId: Joi.string().required().label("categoryId"),
   // image: Joi.string().required().label("image"),
-  description: Joi.string().required().label("description")
+  description: Joi.string().required().label("description"),
+  isActive: Joi.string().required().label("isActive"),
 });
 
 router.post('/update',
@@ -81,7 +82,7 @@ router.post('/update',
   upload.single('image'),
   commonResolver.bind({
     modelService: updateSubCategory,
-    isRequestValidateRequired: false,
+    isRequestValidateRequired: true,
     schemaValidate: dataSchema
   }))
 
