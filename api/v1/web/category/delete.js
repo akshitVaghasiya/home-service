@@ -6,15 +6,15 @@ const router = new Router();
 
 /**
  * @swagger
- * /api/v1/customer/add:
+ * /api/v1/category/delete:
  *  post:
- *   tags: ["Customer"]
- *   summary: Save customer information.
- *   description: api used for Save customer information.
+ *   tags: ["Category"]
+ *   summary: delete category information.
+ *   description: api used for delete category information.
  *   parameters:
  *      - in: body
  *        name: lead
- *        description: Save customer information.
+ *        description: Save category information.
  *        schema:
  *         type: object
  *         properties:
