@@ -225,7 +225,7 @@ export const getServiceBySubCategory = async (req, res) => {
 
   let services = await dbService.findAllRecords("serviceModel",
     {
-      categoryId: mongoose.Types.ObjectId(id),
+      subCategoryId: mongoose.Types.ObjectId(id),
       isDeleted: false,
     }
   );
