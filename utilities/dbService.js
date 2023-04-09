@@ -34,8 +34,8 @@ const findOneAndUpdateRecord = async (modelName, query, payload, options = {}) =
   return await collections[modelName].findOneAndUpdate(query, payload, options);
 };
 
-const aggregateData = async (modelName, query, isCollation=false) => {
-  if(isCollation)  return await collections[modelName].aggregate(query).collation({ locale: "en" })
+const aggregateData = async (modelName, query, isCollation = false) => {
+  if (isCollation) return await collections[modelName].aggregate(query).collation({ locale: "en" })
   return await collections[modelName].aggregate(query);
 };
 
