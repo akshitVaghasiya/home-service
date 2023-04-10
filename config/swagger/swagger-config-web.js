@@ -23,11 +23,17 @@ const swaggerOptions = {
                 scheme: 'bearer',
                 in: 'header',
             },
+            cookieAuth: {
+                type: 'apiKey',
+                name: 'token',
+                scheme: 'bearer',
+                in: 'cookie',
+            },
         },
         produces: ["application/json"]
     },
     apis: [
         "./api/v1/web/*/*.js"
-        ]
+    ]
 };
 export default swaggerJsDocs(swaggerOptions);

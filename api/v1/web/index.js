@@ -13,6 +13,7 @@ import subcategory from "./subcategory";
 import service from "./service";
 import admin from "./admin";
 import cart from "./cart";
+import worker from "./worker";
 
 /*********** Combine all Routes ********************/
 app.use("/customer", customer);
@@ -21,5 +22,6 @@ app.use("/subcategory", subcategory);
 app.use("/service", service);
 app.use("/admin", admin);
 app.use("/cart", cart);
+app.use("/worker", worker);
 
 export default app;
