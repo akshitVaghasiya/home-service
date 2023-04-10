@@ -209,6 +209,7 @@ export const getService = async (req, res) => {
 /********************** getServiceBySubCategory **********************/
 export const getServiceBySubCategory = async (req, res) => {
   let name = req.body.subCategoryName;
+	const user = req.user;
 
   let id = await dbService.findOneRecord("subCategoryModel",
   {
@@ -229,6 +230,34 @@ export const getServiceBySubCategory = async (req, res) => {
       isDeleted: false,
     }
   );
+
+	// let services = await dbService.aggregateData("serviceModel", [
+	// 		{$match: {
+	// 			subCategoryId: mongoose.Types.ObjectId(id),
+	// 			isDeleted: false
+	// 		}},
+	// 		{$lookup: {
+	// 			from: "cartModel",
+	// 			localField: "_id",
+	// 			let: {
+	// 				serviceId: "$_id"
+	// 			},
+	// 			pipeline: [
+	// 				{
+	// 					$match: {
+	// 						$expr: {
+	// 							$and: [
+	// 								{ $eq: ["customerId", user.userId] },
+	// 								{ $eq: ["items.serviceId", "$$serviceId"]}
+	// 							]
+	// 						}
+	// 					}
+	// 				}
+	// 			],
+	// 			foreignField: "items.serviceId",
+	// 			as: "quantity"
+	// 		}}
+	// ])
 
   return services;
 
