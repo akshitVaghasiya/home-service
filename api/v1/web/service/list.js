@@ -35,7 +35,7 @@ const router = new Router();
  *      - bearerAuth: [] 
  */
 
-router.get('/all',
+router.post('/all',
     commonResolver.bind({
         modelService: getService,
         isRequestValidateRequired: false,
