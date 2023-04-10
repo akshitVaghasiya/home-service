@@ -7,28 +7,25 @@
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { getCustomer } from "../../../../services/customer/customer";
+import { getCustomerWithId } from "../../../../services/customer/customer";
 import { decodeJwtTokenFn } from '../../../../utilities/universal';
 const router = new Router();
 
-
 /**
  * @swagger
- * /api/v1/customer/getcustomer:
+ * /api/v1/customer/getcustomerwithid:
  *  post:
- *   tags: ["Customer"]
- *   summary: get Contractor information.
- *   description: api used for get Contractor information.
+ *   tags: ["SubCategory"]
+ *   summary: get Service information.
+ *   description: api used for get subcategory information.
  *   parameters:
  *      - in: body
  *        name: lead
- *        description: get Contractor information.
+ *        description: get subcategory information.
  *        schema:
  *         type: object
  *         properties:
- *           page:
- *             type: string
- *           limit:
+ *           id:
  *             type: string
  *   responses:
  *    "200":
@@ -39,14 +36,15 @@ const router = new Router();
  *      - bearerAuth: [] 
  */
 
-router.post('/getCustomer',
+const dataSchema = Joi.object({
+    id: Joi.string().required().label("subCategory id"),
+});
+
+router.post('/getcustomerwithid',
     decodeJwtTokenFn,
     commonResolver.bind({
-        modelService: getCustomer,
+        modelService: getCustomerWithId,
         isRequestValidateRequired: false,
-        schemaValidate: {}
+        schemaValidate: dataSchema
     }))
-
-
-
 export default router;

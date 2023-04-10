@@ -71,9 +71,11 @@ const dataSchema = Joi.object({
   password: Joi.string().required().label("password"),
 });
 
-router.post('/add', commonResolver.bind({ modelService: addCustomer, isRequestValidateRequired: true, schemaValidate: dataSchema }))
-
-
-
+router.post('/add',
+  commonResolver.bind({
+    modelService: addCustomer,
+    isRequestValidateRequired: false,
+    schemaValidate: dataSchema
+  }))
 
 export default router;

@@ -45,6 +45,12 @@ const dataSchema = Joi.object({
   confirmPassword: Joi.string().required().label("confirm Password"),
 });
 
-router.post('/updatepassword', decodeJwtTokenFn, commonResolver.bind({ modelService: updateCustomerPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
+router.post('/updatepassword',
+  decodeJwtTokenFn,
+  commonResolver.bind({
+    modelService: updateCustomerPassword,
+    isRequestValidateRequired: true,
+    schemaValidate: dataSchema
+  }))
 
 export default router;
