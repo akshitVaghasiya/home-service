@@ -11,7 +11,8 @@ import updatepassword from './updatepassword';
 import forgotpassword from './forgotpassword';
 import resetpassword from './resetpassword';
 import updatecustomer from './updatecustomer';
+import single from './single';
 
 
-export default [saveCustomer, login, list, updatepassword, forgotpassword, resetpassword, updatecustomer];
+export default [saveCustomer, login, list, updatepassword, forgotpassword, resetpassword, updatecustomer, single];
 
