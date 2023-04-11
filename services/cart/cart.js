@@ -7,6 +7,7 @@ const path = require("path");
 export const getCategoryWiseCart = async (req, res) => {
   const payload = req.body;
   const user = req.user;
+  console.log("user id ====>>>>>", user.userId);
 
   let category = await dbService.findOneRecord(
     "categoryModel",
@@ -19,6 +20,11 @@ export const getCategoryWiseCart = async (req, res) => {
 
   const project = await dbService.aggregateData("cartModel", [
     {
+      $match: {
+        customerId: ObjectId(user.userId),
+      },
+    },
+    {
       $unwind: "$items",
     },
     {
@@ -26,13 +32,44 @@ export const getCategoryWiseCart = async (req, res) => {
         "items.categoryId": ObjectId(category),
       },
     },
+    {
+      $lookup: {
+        from: "services",
+        localField: "items.serviceId",
+        foreignField: "_id",
+        let: {
+          quantity: "$items.quantity",
+        },
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              subCategoryId: 1,
+              serviceName: 1,
+              image: 1,
+              duration: 1,
+              price: 1,
+              // subTotal: {
+              //   $sum: {
+              //     $multiply: [$$price, $$quantity],
+              //   },
+              // },
+            },
+          },
+        ],
+        as: "serviceData",
+      },
+    },
   ]);
-  // const project = await dbService.findAllRecords("cartModel", {
-  //   customerId: ObjectId(user._id),
-  //   items: { $elemMatch: { categoryId: ObjectId(category) } },
-  // });
 
-  return project;
+  let subTotal = 0;
+
+  project.forEach((value) => {
+    let serivceTotal = value.serviceData[0].price * value.items.quantity
+    subTotal += serivceTotal
+  })
+
+  return {cartData: project, subTotal};
 };
 
 export const getServiceWiseCart = async (req, res) => {
@@ -63,7 +100,6 @@ export const getServiceWiseCart = async (req, res) => {
   //   items: { $elemMatch: { categoryId: ObjectId(category) } },
   // });
 
-
   return project[0];
 };
 
@@ -84,7 +120,7 @@ export const addToCart = async (req, res) => {
       { new: true }
     );
     // if (result) {
-      return "Cart updated successfully";
+    return "Cart updated successfully";
     // } else {
     //   throw new Error("Something went Wrong");
     // }
