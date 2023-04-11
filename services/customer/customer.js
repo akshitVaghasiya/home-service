@@ -33,7 +33,6 @@ export const addCustomer = async (req, res) => {
       delete req.body.addBy;
     }
     let userData = await dbService.createOneRecord("customerModel", req.body);
-    // console.log("project data =>", project);
 
     if (!addBy) {
       let token = await generateJwtTokenFn({ userId: userData._id });

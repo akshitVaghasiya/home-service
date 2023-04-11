@@ -26,35 +26,120 @@ export const addWorker = async (req, res) => {
     console.log("still we have req.body.password =>", req.body.password);
     req.body.password = password;
     console.log("after we have req.body.password =>", req.body.password);
-    //let project = await workerModel.saveQuery(req.body);
     let userData = await dbService.createOneRecord("workerModel", req.body);
-    console.log("project data =>", project);
 
-    let token = await generateJwtTokenFn({ userId: userData._id });
-    let updateData = {
-      $push: {
-        loginToken: {
-          token: token,
-        },
-      },
-      lastLoginDate: Date.now(),
-    };
+    // let token = await generateJwtTokenFn({ userId: userData._id });
+    // let updateData = {
+    //   $push: {
+    //     loginToken: {
+    //       token: token,
+    //     },
+    //   },
+    //   lastLoginDate: Date.now(),
+    // };
 
-    let data = await dbService.findOneAndUpdateRecord(
-      "workerModel",
-      { _id: userData._id },
-      updateData,
-      { new: true }
-    );
+    // let data = await dbService.findOneAndUpdateRecord(
+    //   "workerModel",
+    //   { _id: userData._id },
+    //   updateData,
+    //   { new: true }
+    // );
 
-    const options = {
-      expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-      httpOnly: true,
-    };
-    res.cookie("token", token, options);
+    // const options = {
+    //   expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+    //   httpOnly: true,
+    // };
+    // res.cookie("token", token, options);
 
-    return data;
+    return userData;
   }
+};
+
+/*************************** getWorker ***************************/
+export const getWorker = async (req, res, next) => {
+  let postData = req.body;
+  console.log("postdata=>", postData);
+  let { page = 1, limit = 0 } = req.body;
+  let skip = limit * page - limit;
+  let where = {
+    isVerified: true,
+    isDeleted: false,
+  };
+
+  if (postData.searchText) {
+    where = {
+      ...where,
+      ...{
+        $or: [
+          { firstName: { $regex: postData.searchText, $options: "i" } },
+          { lastName: { $regex: postData.searchText, $options: "i" } },
+          { email: { $regex: postData.searchText, $options: "i" } },
+        ],
+      },
+    };
+  }
+  // if (postData.selectText) {
+  //   where = {
+  //     ...where,
+  //     ...{
+  //       categoryId: { $in: postData.selectText }
+  //     },
+  //   };
+  // }
+  let sort = {};
+
+  if (postData.sortBy && postData.sortMode) {
+    if (postData.sortBy) {
+      sort[postData.sortBy] = postData.sortMode;
+      console.log("in if sort");
+    }
+  } else {
+    sort["_id"] = -1;
+  }
+  console.log("where=>", where);
+
+  let totalrecord = await dbService.recordsCount("workerModel", where);
+  let results = await dbService.findManyRecordsWithPagination("workerModel",
+    where,
+    {
+      sort,
+      skip,
+      limit
+    }
+  );
+
+  return {
+    items: results,
+    page: page,
+    count: totalrecord,
+    limit: limit,
+  };
+};
+
+export const updateWorker = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+  const { id } = req.query;
+  let _id = id ? id : userId;
+
+  let userData = await dbService.findOneRecord("workerModel", {
+    _id: ObjectId(_id),
+    isDeleted: false,
+  });
+
+  if (!userData) throw new Error("user not found!");
+
+  let project = await dbService.findOneAndUpdateRecord(
+    "workerModel",
+    { _id: ObjectId(_id) },
+    { ...payload, updatedAt: Date() },
+    { runValidators: true, new: true }
+  );
+
+  return {
+    data: project,
+    message: "data updated successfully."
+  };
 };
 
 /*************************** loginAdmin ***************************/
@@ -63,7 +148,8 @@ export const onLogin = async (req, res, next) => {
   console.log("payload==>", payload);
   let userData = await dbService.findOneRecord("workerModel", {
     email: payload.email.toLowerCase(),
-    role: "admin",
+    isActive: true,
+    isVerified: true,
     isDeleted: false,
   });
   if (!userData) throw new Error("Admin not found");
@@ -119,18 +205,21 @@ export const onLogin = async (req, res, next) => {
 };
 
 // Get Admin Detail
-export const getWorkerDetail = async (req, res, next) => {
-  const payload = req.user;
+export const getWorkerWithId = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+  let _id = payload.id ? payload.id : userId;
+  console.log("payload-->", payload);
+  console.log("userId--->", userId);
 
-  let admin = await dbService.findOneRecord("workerModel", {
-    _id: payload._id,
-    role: "admin",
+  let userData = await dbService.findOneRecord("workerModel", {
+    _id: ObjectId(_id),
     isDeleted: false,
   });
 
-  return {
-    ...admin._doc
-  };
+  if (!userData) throw new Error("user not found!");
+
+  return userData;
 };
 
 // Logout Admin
@@ -196,7 +285,7 @@ export const getEvent = async (req, res, next) => {
   return eventData;
 };
 
-// getEvent
+// getSingleEvent
 export const getSingleEvent = async (req, res, next) => {
   console.log("req->", req);
   let postData = req.body;
@@ -240,7 +329,7 @@ export const deleteEvent = async (req, res, next) => {
   return eventData;
 };
 
-// deleteEvent
+// updateEvent
 export const updateEvent = async (req, res, next) => {
   console.log("req->", req);
   let postData = req.body;
