@@ -33,7 +33,6 @@ export const addCustomer = async (req, res) => {
     console.log("after we have req.body.password =>", req.body.password);
     //let project = await customerModel.saveQuery(req.body);
     let userData = await dbService.createOneRecord("customerModel", req.body);
-    console.log("project data =>", project);
 
     let token = await generateJwtTokenFn({ userId: userData._id });
     let updateData = {
@@ -292,4 +291,31 @@ export const updateCustomer = async (req, res) => {
   );
 
   return project;
+};
+
+// Get User Detail
+export const getUserDetail = async (req, res, next) => {
+  const payload = req.user;
+
+  let user = await dbService.findOneRecord("customerModel", {
+    _id: payload._id,
+    isDeleted: false,
+  });
+
+  return {
+    ...user._doc
+  };
+};
+
+// Logout User
+export const logout = async (req, res, next) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+
+  return {
+    success: true,
+    message: "Logged Out",
+  };
 };
