@@ -4,15 +4,16 @@
  * @author: Sandip Vaghasiya
  */
 
-import saveCustomer from "./save";
-import login from "./login";
-import list from "./list";
-import updatepassword from "./updatepassword";
-import forgotpassword from "./forgotpassword";
-import resetpassword from "./resetpassword";
-import updatecustomer from "./updatecustomer";
-import userdetail from "./userdetail";
+import saveCustomer from './save';
+import login from './login';
+import list from './list';
+import updatepassword from './updatepassword';
+import forgotpassword from './forgotpassword';
+import resetpassword from './resetpassword';
+import updatecustomer from './updatecustomer';
+import single from './single';
 import logout from "./logout";
+import userdetail from "./userdetail";
 
 export default [
   saveCustomer,
@@ -24,4 +25,5 @@ export default [
   updatecustomer,
   userdetail,
   logout,
+  single,
 ];

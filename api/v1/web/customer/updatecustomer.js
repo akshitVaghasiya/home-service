@@ -20,6 +20,12 @@ const dataSchema = Joi.object({
   phone: Joi.string().required().label("phone"),
 });
 
-router.post('/updatecustomer', decodeJwtTokenFn, commonResolver.bind({ modelService: updateCustomer, isRequestValidateRequired: true, schemaValidate: dataSchema }))
+router.post('/updatecustomer',
+  decodeJwtTokenFn,
+  commonResolver.bind({
+    modelService: updateCustomer,
+    isRequestValidateRequired: false,
+    schemaValidate: dataSchema
+  }))
 
 export default router;

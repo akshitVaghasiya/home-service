@@ -6,26 +6,27 @@
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { addCustomer } from "../../../../services/customer/customer";
+import { deleteEvent } from "../../../../services/worker/worker";
+import { decodeJwtTokenFn } from "../../../../utilities/universal";
 const router = new Router();
 
 /**
  * @swagger
- * /api/v1/customer/add:
+ * /api/v1/worker/deleteevent:
  *  post:
- *   tags: ["Customer"]
- *   summary: Save customer information.
- *   description: api used for Save customer information.
+ *   tags: ["Worker"]
+ *   summary: Save worker information.
+ *   description: api used for Save worker information.
  *   parameters:
  *      - in: body
  *        name: lead
- *        description: Save customer information.
+ *        description: Save worker information.
  *        schema:
  *         type: object
  *         properties:
- *           firstName:
+ *           name:
  *             type: string
- *           lastName:
+ *           gender:
  *             type: string
  *           address:
  *             type: object
@@ -55,27 +56,12 @@ const router = new Router();
  *     description: fail
  */
 
-const dataSchema = Joi.object({
-  firstName: Joi.string().required().label("firstName"),
-  lastName: Joi.string().required().label("lastName"),
-  // address: Joi.object({
-  //   houseNo: Joi.string().required().label("houseNo"),
-  //   streetName: Joi.string().required().label("streetName"),
-  //   landMark: Joi.string().required().label("landMark"),
-  //   city: Joi.string().required().label("city"),
-  //   state: Joi.string().required().label("state"),
-  //   pinCode: Joi.string().length(6).required().label("pinCode"),
-  // }),
-  email: Joi.string().required().label("email"),
-  phone: Joi.string().required().label("phone"),
-  password: Joi.string().required().label("password"),
-});
-
-router.post('/add',
+router.post('/deleteevent',
+  decodeJwtTokenFn,
   commonResolver.bind({
-    modelService: addCustomer,
+    modelService: deleteEvent,
     isRequestValidateRequired: false,
-    schemaValidate: dataSchema
+    schemaValidate: {}
   }))
 
 export default router;

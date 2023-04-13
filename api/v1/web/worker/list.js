@@ -7,16 +7,16 @@
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { getCustomer } from "../../../../services/customer/customer";
+import { getWorker } from "../../../../services/worker/worker";
 import { decodeJwtTokenFn } from '../../../../utilities/universal';
 const router = new Router();
 
 
 /**
  * @swagger
- * /api/v1/customer/getcustomer:
+ * /api/v1/worker/getworker:
  *  post:
- *   tags: ["Customer"]
+ *   tags: ["Worker"]
  *   summary: get Contractor information.
  *   description: api used for get Contractor information.
  *   parameters:
@@ -39,10 +39,10 @@ const router = new Router();
  *      - bearerAuth: [] 
  */
 
-router.post('/getCustomer',
+router.post('/getworker',
     decodeJwtTokenFn,
     commonResolver.bind({
-        modelService: getCustomer,
+        modelService: getWorker,
         isRequestValidateRequired: false,
         schemaValidate: {}
     }))

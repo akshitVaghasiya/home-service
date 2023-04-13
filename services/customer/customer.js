@@ -1,9 +1,3 @@
-/**
- * This is for Contain function layer for contractor service.
- * @author Sandip Vaghasiya
- *
- */
-
 import dbService from "../../utilities/dbService";
 import {
   encryptpassword,
@@ -12,10 +6,13 @@ import {
   generateRandom,
 } from "../../utilities/universal";
 import { sendEmail } from "../../utilities/sendEmail";
+const ObjectId = require("mongodb").ObjectID;
+
 
 /*************************** addCustomer ***************************/
 export const addCustomer = async (req, res) => {
   console.log("req service =>", req.body);
+  let { addBy } = req.body;
   const { email } = req.body;
   console.log("email =>", email);
   let customerData = await dbService.findOneRecord("customerModel", {
@@ -31,33 +28,40 @@ export const addCustomer = async (req, res) => {
     console.log("still we have req.body.password =>", req.body.password);
     req.body.password = password;
     console.log("after we have req.body.password =>", req.body.password);
-    //let project = await customerModel.saveQuery(req.body);
+
+    if (req.body.addBy) {
+      delete req.body.addBy;
+    }
     let userData = await dbService.createOneRecord("customerModel", req.body);
 
-    let token = await generateJwtTokenFn({ userId: userData._id });
-    let updateData = {
-      $push: {
-        loginToken: {
-          token: token,
+    if (!addBy) {
+      let token = await generateJwtTokenFn({ userId: userData._id });
+      let updateData = {
+        $push: {
+          loginToken: {
+            token: token,
+          },
         },
-      },
-      lastLoginDate: Date.now(),
-    };
+        lastLoginDate: Date.now(),
+      };
 
-    let data = await dbService.findOneAndUpdateRecord(
-      "customerModel",
-      { _id: userData._id },
-      updateData,
-      { new: true }
-    );
+      let data = await dbService.findOneAndUpdateRecord(
+        "customerModel",
+        { _id: userData._id },
+        updateData,
+        { new: true }
+      );
 
-    const options = {
-      expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-      httpOnly: true,
-    };
-    res.cookie("token", token, options);
+      const options = {
+        expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+      };
+      res.cookie("token", token, options);
 
-    return data;
+      return data;
+    } else {
+      return userData;
+    }
   }
 };
 
@@ -123,18 +127,63 @@ export const onLogin = async (req, res, next) => {
 };
 
 /*************************** getCustomer ***************************/
-export const getCustomer = async (entry) => {
-  console.log("entry=>", entry);
-  let {
-    user: { userId },
-  } = entry;
-  console.log("userId=>", userId);
+export const getCustomer = async (req, res, next) => {
+  let postData = req.body;
+  console.log("postdata=>", postData);
+  let { page = 1, limit = 0 } = req.body;
+  let skip = limit * page - limit;
+  let where = {
+    isDeleted: false,
+  };
 
-  let contractorData = await dbService.findAllRecords("customerModel", {
-    _id: userId,
-  });
+  if (postData.searchText) {
+    where = {
+      ...where,
+      ...{
+        $or: [
+          { firstName: { $regex: postData.searchText, $options: "i" } },
+          { lastName: { $regex: postData.searchText, $options: "i" } },
+          { email: { $regex: postData.searchText, $options: "i" } },
+        ],
+      },
+    };
+  }
+  // if (postData.selectText) {
+  //   where = {
+  //     ...where,
+  //     ...{
+  //       categoryId: { $in: postData.selectText }
+  //     },
+  //   };
+  // }
+  let sort = {};
 
-  return contractorData;
+  if (postData.sortBy && postData.sortMode) {
+    if (postData.sortBy) {
+      sort[postData.sortBy] = postData.sortMode;
+      console.log("in if sort");
+    }
+  } else {
+    sort["_id"] = -1;
+  }
+  console.log("where=>", where);
+
+  let totalrecord = await dbService.recordsCount("customerModel", where);
+  let results = await dbService.findManyRecordsWithPagination("customerModel",
+    where,
+    {
+      sort,
+      skip,
+      limit
+    }
+  );
+
+  return {
+    items: results,
+    page: page,
+    count: totalrecord,
+    limit: limit,
+  };
 };
 
 /*************************** updateCustomerPassword ***************************/
@@ -273,11 +322,11 @@ export const resetPassword = async (req, res) => {
 export const updateCustomer = async (req, res) => {
   const payload = req.body;
   const { userId } = req.user;
-  console.log(payload);
-  console.log(userId);
+  const { id } = req.query;
+  let _id = id ? id : userId;
 
   let userData = await dbService.findOneRecord("customerModel", {
-    _id: userId,
+    _id: ObjectId(_id),
     isDeleted: false,
   });
 
@@ -285,12 +334,33 @@ export const updateCustomer = async (req, res) => {
 
   let project = await dbService.findOneAndUpdateRecord(
     "customerModel",
-    { _id: userId },
+    { _id: ObjectId(_id) },
     { ...payload, updatedAt: Date() },
     { runValidators: true, new: true }
   );
 
-  return project;
+  return {
+    data: project,
+    message: "data updated successfully."
+  };
+};
+
+/*************************** singele Customer ***************************/
+export const getCustomerWithId = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+  let _id = payload.id ? payload.id : userId;
+  console.log("payload-->", payload);
+  console.log("userId--->", userId);
+
+  let userData = await dbService.findOneRecord("customerModel", {
+    _id: ObjectId(_id),
+    isDeleted: false,
+  });
+
+  if (!userData) throw new Error("user not found!");
+
+  return userData;
 };
 
 // Get User Detail

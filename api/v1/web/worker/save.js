@@ -6,26 +6,26 @@
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { addCustomer } from "../../../../services/customer/customer";
+import { addWorker } from "../../../../services/worker/worker";
 const router = new Router();
 
 /**
  * @swagger
- * /api/v1/customer/add:
+ * /api/v1/worker/add:
  *  post:
- *   tags: ["Customer"]
- *   summary: Save customer information.
- *   description: api used for Save customer information.
+ *   tags: ["Worker"]
+ *   summary: Save worker information.
+ *   description: api used for Save worker information.
  *   parameters:
  *      - in: body
  *        name: lead
- *        description: Save customer information.
+ *        description: Save worker information.
  *        schema:
  *         type: object
  *         properties:
- *           firstName:
+ *           name:
  *             type: string
- *           lastName:
+ *           gender:
  *             type: string
  *           address:
  *             type: object
@@ -73,7 +73,7 @@ const dataSchema = Joi.object({
 
 router.post('/add',
   commonResolver.bind({
-    modelService: addCustomer,
+    modelService: addWorker,
     isRequestValidateRequired: false,
     schemaValidate: dataSchema
   }))
