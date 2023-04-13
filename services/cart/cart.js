@@ -63,13 +63,16 @@ export const getCategoryWiseCart = async (req, res) => {
   ]);
 
   let subTotal = 0;
+  let totalTime = 0;
 
   project.forEach((value) => {
     let serivceTotal = value.serviceData[0].price * value.items.quantity
+    let serviceTime = value.serviceData[0].duration * value.items.quantity
     subTotal += serivceTotal
+    totalTime += serviceTime
   })
 
-  return {cartData: project, subTotal};
+  return {cartData: project, subTotal, totalTime};
 };
 
 export const getServiceWiseCart = async (req, res) => {

@@ -12,7 +12,18 @@ import forgotpassword from './forgotpassword';
 import resetpassword from './resetpassword';
 import updatecustomer from './updatecustomer';
 import single from './single';
+import logout from "./logout";
+import userdetail from "./userdetail";
 
-
-export default [saveCustomer, login, list, updatepassword, forgotpassword, resetpassword, updatecustomer, single];
-
+export default [
+  saveCustomer,
+  login,
+  list,
+  updatepassword,
+  forgotpassword,
+  resetpassword,
+  updatecustomer,
+  userdetail,
+  logout,
+  single,
+];

@@ -362,3 +362,30 @@ export const getCustomerWithId = async (req, res) => {
 
   return userData;
 };
+
+// Get User Detail
+export const getUserDetail = async (req, res, next) => {
+  const payload = req.user;
+
+  let user = await dbService.findOneRecord("customerModel", {
+    _id: payload._id,
+    isDeleted: false,
+  });
+
+  return {
+    ...user._doc
+  };
+};
+
+// Logout User
+export const logout = async (req, res, next) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+
+  return {
+    success: true,
+    message: "Logged Out",
+  };
+};
