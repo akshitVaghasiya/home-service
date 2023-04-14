@@ -251,7 +251,7 @@ export const addEvent = async (req, res, next) => {
         type: postData?.type,
       },
     },
-    lastLoginDate: Date.now(),
+    // lastLoginDate: Date.now(),
   };
 
   let data = await dbService.findOneAndUpdateRecord(
@@ -351,4 +351,126 @@ export const updateEvent = async (req, res, next) => {
   console.log("eventData--->", eventData);
 
   return "event updated successfully";
+};
+
+// getRequest
+export const getRequest = async (req, res, next) => {
+  let postData = req.body;
+  let { userId } = req.user
+
+  let workerData = await dbService.findOneRecord('workerModel',
+    {
+      _id: ObjectId(userId),
+    }
+  );
+
+  let match = {
+    categoryId: ObjectId(workerData.skills),
+    "serviceLocation.pinCode": workerData.location,
+    status: "pending",
+  }
+
+  if (Object.keys(workerData.schedule).length > 0) {
+    match = {
+      ...match,
+      ...{
+        $or: workerData.schedule.map(unavailability => ({
+          $or: [
+            {
+              "startTime": { $lt: new Date(unavailability.start) },
+              "endTime": { $lte: new Date(unavailability.start) }
+            },
+            {
+              "startTime": { $gte: new Date(unavailability.end) },
+              "endTime": { $gt: new Date(unavailability.end) }
+            },
+            {
+              "startTime": { $gte: new Date(unavailability.start) },
+              "endTime": { $lte: new Date(unavailability.end) }
+            }
+          ]
+        }))
+      }
+    }
+  }
+
+  let orderData = await dbService.aggregateData('orderModel',
+    [
+      {
+        $match: match
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "categoryDetail"
+        }
+      },
+      {
+        $unwind: "$categoryDetail"
+      },
+      // {
+      //   $unwind: "$items"
+      // },
+      // {
+      //   $lookup: {
+      //     from: "services",
+      //     localField: "items.serviceId",
+      //     foreignField: "_id",
+      //     as: "serviceDetail"
+      //   }
+      // },
+    ]
+  );
+
+  console.log("orderDataorderData----->", orderData);
+  return orderData;
+};
+
+// updateRequest
+export const updateRequest = async (req, res, next) => {
+  console.log("req->", req);
+  let postData = req.body;
+  let { userId } = req.user;
+  const { id } = req.query;
+
+  let payload = {
+    status: postData.status,
+    workerId: userId,
+  }
+
+  let requestData = await dbService.findOneAndUpdateRecord("orderModel",
+    {
+      _id: ObjectId(id)
+    },
+    payload,
+    {
+      new: true
+    }
+  );
+
+  let eventData = {
+    $push: {
+      schedule: {
+        title: 'work',
+        start: requestData?.startTime,
+        end: requestData?.endTime,
+        description: 'work',
+        type: 'work',
+        orderId: requestData._id,
+      },
+    },
+  };
+
+  let data = await dbService.findOneAndUpdateRecord(
+    "workerModel",
+    { _id: ObjectId(userId) },
+    eventData,
+    { new: true }
+  );
+
+  console.log("eventData--->", requestData);
+
+  return "request accepted successfully";
 };

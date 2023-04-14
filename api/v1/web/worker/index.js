@@ -16,6 +16,8 @@ import updateevent from './updateevent';
 import updateworker from './updateworker';
 import list from './list';
 import single from './single';
+import getrequest from './getrequest';
+import updaterequest from './updaterequest';
 
-export default [login, logout, add, addevent, getevent, getsingleevent, deleteevent, updateevent, updateworker, single, list];
+export default [login, logout, add, addevent, getevent, getsingleevent, deleteevent, updateevent, updateworker, single, list, getrequest, updaterequest,];
 
