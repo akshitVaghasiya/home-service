@@ -14,6 +14,7 @@ import service from "./service";
 import admin from "./admin";
 import cart from "./cart";
 import worker from "./worker";
+import order from "./order";
 
 /*********** Combine all Routes ********************/
 app.use("/customer", customer);
@@ -23,5 +24,6 @@ app.use("/service", service);
 app.use("/admin", admin);
 app.use("/cart", cart);
 app.use("/worker", worker);
+app.use("/order", order);
 
 export default app;

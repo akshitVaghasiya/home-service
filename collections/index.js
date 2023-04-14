@@ -4,6 +4,7 @@ import subCategoryModel from './subcategory';
 import serviceModel from './service';
 import cartModel from './cart';
 import workerModel from './worker';
+import orderModel from './order';
 
 module.exports = {
     customerModel,
@@ -12,4 +13,5 @@ module.exports = {
     serviceModel,
     cartModel,
     workerModel,
+    orderModel,
 }
