@@ -154,3 +154,44 @@ export const getWork = async (req, res) => {
     limit: limit,
   };
 }
+
+/********************** get order list for user ********************/ 
+export const getOrderList = async (req, res) => {
+  let {userId} = req.user;
+  let {categoryId, status} = req.body;
+
+  const project = await dbService.aggregateData("orderModel", [
+    {
+      $match: {
+        customerId: ObjectId("6438e3dc2e3256b75db3a56b"),
+        // customerId: ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "workers",
+        localField: "workerId",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              password: 0,
+              isVerified: 0,
+              isActive: 0,
+              isDeleted: 0,
+              schedule: 0,
+              loginToken: 0,
+              createdAt: 0,
+              updatedAt: 0
+            },
+          },
+        ],
+        as: "workerData",
+      },
+    },
+  ]);
+
+  // console.log("order data--->>>", JSON.parse(project));
+
+  return project
+}
