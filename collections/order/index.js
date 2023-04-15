@@ -14,10 +14,12 @@ const orderModel = new mongoose.Schema({
             image: { type: String },
         }
     ],
+    startServiceCode: { type: String },
+    endServiceCode: { type: String },
     startTime: { type: Date },
     endTime: { type: Date },
     totalTime: { type: String },
-    status: { type: String, default: 'pending' }, // pending, confirmed, completed, cancelled
+    status: { type: String, default: 'pending' }, // pending, confirmed, working, completed, cancelled
     paymentMode: { type: String, default: 'COD' },
     grandTotal: { type: String },
     tax: { type: String },

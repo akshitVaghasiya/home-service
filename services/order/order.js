@@ -1,5 +1,8 @@
 import dbService from "../../utilities/dbService";
 const ObjectId = require("mongodb").ObjectID;
+import {
+  generateRandom,
+} from "../../utilities/universal";
 import { unlink } from "node:fs";
 const path = require("path");
 
@@ -120,7 +123,7 @@ export const getWork = async (req, res) => {
     where = {
       ...where,
       ...{
-        status: { $in: ['confirmed', 'completed'] }
+        status: { $in: ['confirmed', 'completed', 'cancelled', 'working'] }
       }
     }
   }
@@ -195,3 +198,131 @@ export const getOrderList = async (req, res) => {
 
   return project
 }
+
+// getSingleWork
+export const getSingleWork = async (req, res, next) => {
+  console.log("req->", req);
+  let postData = req.body;
+  let { userId } = req.user
+
+  let eventData = await dbService.aggregateData("orderModel",
+    [
+      {
+        $match: {
+          _id: ObjectId(postData.id),
+          workerId: ObjectId(userId),
+        }
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "categoryDetail"
+        }
+      },
+      {
+        $unwind: "$categoryDetail"
+      },
+    ],
+  );
+  return eventData[0];
+};
+
+// completeWork
+export const completeWork = async (req, res, next) => {
+  console.log("req->", req);
+  let postData = req.body;
+  let { userId } = req.user;
+  let { id } = req.query;
+
+  let orderData = await dbService.findOneRecord('orderModel',
+    {
+      _id: ObjectId(id),
+    }
+  );
+  if (postData.status == 'working') {
+
+    if (orderData.startServiceCode != postData.startServiceCode) {
+      throw new Error("Enter valid start service code!");
+    }
+
+    let otp = await generateRandom(4, false);
+
+    console.log("gcsdyv");
+    console.log("otp----->", otp);
+
+    let result = await dbService.findOneAndUpdateRecord(
+      "orderModel",
+      {
+        _id: ObjectId(id),
+      },
+      {
+        status: postData.status,
+        endServiceCode: otp,
+      },
+      { new: true }
+    );
+
+    return "order started...";
+
+  } else if (postData.status == 'completed') {
+    if (orderData.endServiceCode != postData.endServiceCode) {
+      throw new Error("Enter valid complete service code!");
+    }
+
+    let result = await dbService.findOneAndUpdateRecord(
+      "orderModel",
+      {
+        _id: ObjectId(id),
+      },
+      {
+        status: postData.status,
+      },
+      { new: true }
+    );
+
+    return "order completed...";
+  } else {
+    throw new Error("Something wrong Try again..");
+  }
+
+
+};
+
+// getSingleWork
+export const deleteWork = async (req, res, next) => {
+  console.log("req->", req);
+  let postData = req.body;
+  let { userId } = req.user;
+  let { id } = req.query;
+
+  let result = await dbService.findOneAndUpdateRecord("orderModel",
+    {
+      _id: ObjectId(id),
+    },
+    {
+      status: postData.status,
+    },
+    { new: true }
+  );
+
+  console.log("result------->", result);
+
+  let workerData = await dbService.findOneAndUpdateRecord("workerModel",
+    { _id: ObjectId(result.workerId) },
+    {
+      $pull: {
+        schedule: {
+          "start": new Date(result.startTime),
+          "end": new Date(result.endTime),
+        }
+      }
+    },
+    { new: true }
+  );
+
+  console.log("workerData------->", workerData);
+
+  return "order cancelled sucessfully...";
+};
