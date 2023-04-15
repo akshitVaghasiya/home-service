@@ -440,6 +440,18 @@ export const updateRequest = async (req, res, next) => {
     workerId: userId,
   }
 
+  if (postData.status == 'confirmed') {
+    let otp = await generateRandom(4, false);
+    console.log("otp----->", otp);
+    
+    payload = {
+      ...payload,
+      ...{
+        startServiceCode: otp,
+      }
+    }
+  }
+
   let requestData = await dbService.findOneAndUpdateRecord("orderModel",
     {
       _id: ObjectId(id)
