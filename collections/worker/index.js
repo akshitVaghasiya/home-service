@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 const workerModel = new mongoose.Schema({
+    avatar: { type: String },
     firstName: { type: String },
     lastName: { type: String },
     email: { type: String },

@@ -11,8 +11,11 @@ const ObjectId = require("mongodb").ObjectID;
 /*************************** addWorker ***************************/
 export const addWorker = async (req, res) => {
   console.log("req service =>", req.body);
+  let payload = req.body;
   const { email } = req.body;
   console.log("email =>", email);
+  const { filename } = req.file;
+
   let customerData = await dbService.findOneRecord("workerModel", {
     email: email,
   });
@@ -26,7 +29,32 @@ export const addWorker = async (req, res) => {
     console.log("still we have req.body.password =>", req.body.password);
     req.body.password = password;
     console.log("after we have req.body.password =>", req.body.password);
-    let userData = await dbService.createOneRecord("workerModel", req.body);
+
+    let data = {
+      avatar: payload?.avatar,
+      firstName: payload?.firstName,
+      lastName: payload?.lastName,
+      email: payload?.email,
+      phone: payload?.phone,
+      address: JSON.parse(payload?.address),
+      gender: payload?.gender,
+      skills: payload?.skills,
+      location: payload?.location,
+      password: payload?.password,
+      isVerified: payload?.isVerified,
+      isActive: payload?.isActive,
+    }
+
+    if (filename) {
+      data = {
+        ...data,
+        ...{
+          avatar: filename,
+        }
+      }
+    }
+
+    let userData = await dbService.createOneRecord("workerModel", data);
 
     // let token = await generateJwtTokenFn({ userId: userData._id });
     // let updateData = {
@@ -117,8 +145,10 @@ export const getWorker = async (req, res, next) => {
 };
 
 export const updateWorker = async (req, res) => {
-  const payload = req.body;
+  console.log("req------>", req);
+  let payload = req.body;
   const { userId } = req.user;
+  const { filename } = req.file;
   const { id } = req.query;
   let _id = id ? id : userId;
 
@@ -127,12 +157,36 @@ export const updateWorker = async (req, res) => {
     isDeleted: false,
   });
 
+  let data = {
+    avatar: payload?.avatar,
+    firstName: payload?.firstName,
+    lastName: payload?.lastName,
+    email: payload?.email,
+    phone: payload?.phone,
+    address: JSON.parse(payload?.address),
+    gender: payload?.gender,
+    skills: payload?.skills,
+    location: payload?.location,
+    password: payload?.password,
+    isVerified: payload?.isVerified,
+    isActive: payload?.isActive,
+  }
+
+  if (filename) {
+    data = {
+      ...data,
+      ...{
+        avatar: filename,
+      }
+    }
+  }
+
   if (!userData) throw new Error("user not found!");
 
   let project = await dbService.findOneAndUpdateRecord(
     "workerModel",
     { _id: ObjectId(_id) },
-    { ...payload, updatedAt: Date() },
+    { ...data, updatedAt: Date() },
     { runValidators: true, new: true }
   );
 
@@ -435,6 +489,11 @@ export const updateRequest = async (req, res, next) => {
   let { userId } = req.user;
   const { id } = req.query;
 
+  if (postData.workerId) {
+    userId = postData.workerId
+    console.log("userId in if--->", userId);
+  }
+  console.log("userId--->", userId);
   let payload = {
     status: postData.status,
     workerId: userId,
@@ -443,7 +502,7 @@ export const updateRequest = async (req, res, next) => {
   if (postData.status == 'confirmed') {
     let otp = await generateRandom(4, false);
     console.log("otp----->", otp);
-    
+
     payload = {
       ...payload,
       ...{

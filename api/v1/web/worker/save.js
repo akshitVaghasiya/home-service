@@ -7,7 +7,32 @@ import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
 import { addWorker } from "../../../../services/worker/worker";
+import { decodeJwtTokenFn } from "../../../../utilities/universal";
+
 const router = new Router();
+
+let multer = require("multer");
+
+let storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './views/workerImages');
+  },
+  filename: function (req, file, cb) {
+    const ext = file.mimetype.split("/")[1];
+    cb(null, `${file.fieldname}-${Date.now()}.${ext}`);
+    // cb(null, file.originalname);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/jpg" || file.mimetype === "image/png") {
+    cb(null, true);
+  } else {
+    // cb(new Error("File format should be CSV"), false); // if validation failed then generate error
+    return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+  }
+};
+let upload = multer({ storage: storage, fileFilter: fileFilter });
 
 /**
  * @swagger
@@ -72,6 +97,8 @@ const dataSchema = Joi.object({
 });
 
 router.post('/add',
+  upload.single('avatar'),
+  decodeJwtTokenFn,
   commonResolver.bind({
     modelService: addWorker,
     isRequestValidateRequired: false,
