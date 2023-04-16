@@ -65,6 +65,7 @@ export const addOrder = async (req, res) => {
     subTotal: payload.subTotal,
     orderFee: payload.orderFee,
     serviceLocation: payload.serviceLocation,
+    phone: payload.phone
   };
   // console.log("orderPayload---->", orderPayload);
   let orderData = await dbService.createOneRecord('orderModel',
@@ -166,8 +167,8 @@ export const getOrderList = async (req, res) => {
   const project = await dbService.aggregateData("orderModel", [
     {
       $match: {
-        customerId: ObjectId("6438e3dc2e3256b75db3a56b"),
-        // customerId: ObjectId(userId),
+        // customerId: ObjectId("6438e3dc2e3256b75db3a56b"),
+        customerId: ObjectId(userId),
       },
     },
     {
@@ -192,6 +193,21 @@ export const getOrderList = async (req, res) => {
         as: "workerData",
       },
     },
+    // {
+    //   $lookup: {
+    //   "from": "reviews",
+    //   "let": {"reviewId": "$items.review_id"},
+    //   pipeline: [
+    //     {
+    //       "$match": {
+    //         "$expr": {
+    //           "$in": ["$$reviewId", "$reviews._Id"],  
+    //         },
+    //       },
+    //     },
+    //   ],
+    //   as: "reviewData"
+    // }}
   ]);
 
   // console.log("order data--->>>", JSON.parse(project));
