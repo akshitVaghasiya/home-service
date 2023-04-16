@@ -1,3 +1,4 @@
+import { workerData } from "node:worker_threads";
 import dbService from "../../utilities/dbService";
 const ObjectId = require("mongodb").ObjectID;
 import {
@@ -159,10 +160,10 @@ export const getWork = async (req, res) => {
   };
 }
 
-/********************** get order list for user ********************/ 
+/********************** get order list for user ********************/
 export const getOrderList = async (req, res) => {
-  let {userId} = req.user;
-  let {categoryId, status} = req.body;
+  let { userId } = req.user;
+  let { categoryId, status } = req.body;
 
   const project = await dbService.aggregateData("orderModel", [
     {
@@ -303,7 +304,6 @@ export const completeWork = async (req, res, next) => {
     throw new Error("Something wrong Try again..");
   }
 
-
 };
 
 // getSingleWork
@@ -311,6 +311,208 @@ export const deleteWork = async (req, res, next) => {
   console.log("req->", req);
   let postData = req.body;
   let { userId } = req.user;
+  let { id } = req.query;
+
+  let result = await dbService.findOneAndUpdateRecord("orderModel",
+    {
+      _id: ObjectId(id),
+    },
+    {
+      status: postData.status,
+    },
+    { new: true }
+  );
+
+  console.log("result------->", result);
+
+  let workerData = await dbService.findOneAndUpdateRecord("workerModel",
+    { _id: ObjectId(result.workerId) },
+    {
+      $pull: {
+        schedule: {
+          "start": new Date(result.startTime),
+          "end": new Date(result.endTime),
+        }
+      }
+    },
+    { new: true }
+  );
+
+  console.log("workerData------->", workerData);
+
+  return "order cancelled sucessfully...";
+};
+
+/********************** getOrder **********************/
+export const getOrder = async (req, res) => {
+  let postData = req.body;
+  const { userId } = req.user;
+  console.log("postdata=>", postData);
+  let { page = 1, limit = 0 } = req.body;
+  let skip = limit * page - limit;
+  let where = {
+    isDeleted: false,
+  };
+
+  if (postData.searchText) {
+    where = {
+      ...where,
+      ...{
+        $or: [
+          { serviceName: { $regex: postData.searchText, $options: "i" } },
+        ],
+      },
+    };
+  }
+
+  if (postData.selectText) {
+    where = {
+      ...where,
+      ...{
+        status: { $in: postData.selectText }
+      },
+    };
+  } else {
+    where = {
+      ...where,
+      ...{
+        status: { $in: ['confirmed', 'completed', 'cancelled', 'working', 'pending'] }
+      }
+    }
+  }
+
+  let sort = {};
+
+  if (postData.sortBy && postData.sortMode) {
+    if (postData.sortBy) {
+      sort[postData.sortBy] = postData.sortMode;
+      console.log("in if sort");
+    }
+  } else {
+    sort["_id"] = -1;
+  }
+  // console.log("where=>", where);
+
+  let totalrecord = await dbService.recordsCount("orderModel", where);
+  let results = await dbService.findManyRecordsWithPagination("orderModel",
+    where,
+    {
+      sort,
+      skip,
+      limit
+    }
+  );
+
+  return {
+    items: results,
+    page: page,
+    count: totalrecord,
+    limit: limit,
+  };
+}
+
+// getSingleWork
+export const getSingleOrder = async (req, res, next) => {
+  console.log("req->", req);
+  let postData = req.body;
+  let { userId } = req.user;
+
+  let orderData = await dbService.findOneRecord('orderModel',
+    {
+      _id: ObjectId(postData.id),
+    }
+  );
+
+  if (orderData.status == 'pending') {
+
+    let orderData2 = await dbService.aggregateData("orderModel",
+      [
+        {
+          $match: {
+            _id: ObjectId(orderData._id),
+          }
+        },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "categoryId",
+            foreignField: "_id",
+            as: "categoryDetail"
+          }
+        },
+        {
+          $unwind: "$categoryDetail",
+          // preserveNullAndEmptyArrays: true
+        },
+        {
+          $limit: 1
+        }
+      ]
+    );
+
+    // console.log("orderData2------>", orderData2);
+
+    let workerData = await dbService.findAllRecords('workerModel',
+      {
+        skills: ObjectId(orderData.categoryId),
+        location: orderData.serviceLocation.pinCode,
+        "schedule": {
+          $not: {
+            $elemMatch: {
+              start: { $lt: orderData.endTime },
+              end: { $gt: orderData.startTime } 
+            }
+          }
+        }
+      }
+    )
+
+    orderData2[0].availableWorker = workerData
+    // console.log("orderData2[0]------>", orderData2[0]);
+    return orderData2[0];
+  } else {
+    console.log("in else");
+
+    let orderData3 = await dbService.aggregateData("orderModel", [
+      {
+        $match: {
+          _id: ObjectId(postData.id)
+        }
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "categoryDetail"
+        }
+      },
+      {
+        $unwind: "$categoryDetail",
+      },
+      {
+        $limit: 1
+      }
+    ]);
+
+    if (orderData.workerId) {
+      let worker = await dbService.findOneRecord('workerModel',
+        {
+          _id: ObjectId(orderData.workerId)
+        }
+      )
+      orderData3[0].workerDetail = worker;
+    }
+    // console.log("orderData----------->", orderData3);
+    return orderData3[0];
+  }
+
+};
+
+// deleteOrder
+export const deleteOrder = async (req, res, next) => {
+  console.log("req->", req);
+  let postData = req.body;
   let { id } = req.query;
 
   let result = await dbService.findOneAndUpdateRecord("orderModel",
