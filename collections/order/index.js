@@ -12,6 +12,7 @@ const orderModel = new mongoose.Schema({
             price: { type: Number },
             total: { type: Number },
             image: { type: String },
+            reviewId: { type: Schema.Types.ObjectId, ref: "review" },
         }
     ],
     startServiceCode: { type: String },
@@ -31,7 +32,7 @@ const orderModel = new mongoose.Schema({
         state: { type: String },
         pinCode: { type: String, min: 6, max: 6 },
     },
-    ratingId: { type: String },
+    phone: { type: String },
 
     // createdAt: { type: Date, default: Date() },
     // updatedAt: { type: Date, default: Date() },

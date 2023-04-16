@@ -5,6 +5,7 @@ import serviceModel from './service';
 import cartModel from './cart';
 import workerModel from './worker';
 import orderModel from './order';
+import reviewModel from './review';
 
 module.exports = {
     customerModel,
@@ -14,4 +15,5 @@ module.exports = {
     cartModel,
     workerModel,
     orderModel,
+    reviewModel
 }
