@@ -6,6 +6,7 @@ import cartModel from './cart';
 import workerModel from './worker';
 import orderModel from './order';
 import reviewModel from './review';
+import contactUsModel from './contactUs';
 
 module.exports = {
     customerModel,
@@ -15,5 +16,6 @@ module.exports = {
     cartModel,
     workerModel,
     orderModel,
-    reviewModel
+    reviewModel,
+    contactUsModel,
 }

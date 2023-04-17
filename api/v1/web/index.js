@@ -16,6 +16,7 @@ import cart from "./cart";
 import worker from "./worker";
 import order from "./order";
 import review from "./review";
+import contactUs from "./contactUs";
 
 /*********** Combine all Routes ********************/
 app.use("/customer", customer);
@@ -27,5 +28,6 @@ app.use("/cart", cart);
 app.use("/worker", worker);
 app.use("/order", order);
 app.use("/review", review);
+app.use("/contactUs", contactUs);
 
 export default app;
