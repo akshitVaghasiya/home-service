@@ -248,7 +248,13 @@ export const forgotPassword = async (req, res) => {
 
   if (!userData) throw new Error("something wrong!");
 
-  const resetPasswordUrl = `http://localhost:3000/resetpassword/${resetPasswordToken}`;
+  let resetPasswordUrl = ""
+  if(payload?.from == "admin"){
+    resetPasswordUrl = `http://localhost:3001/resetpassword/${resetPasswordToken}`;
+  } else {
+    resetPasswordUrl = `http://localhost:3000/resetpassword/${resetPasswordToken}`;
+  }
+
 
   const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested this email then, please ignore it.`;
 

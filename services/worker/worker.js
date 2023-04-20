@@ -1,4 +1,5 @@
 import dbService from "../../utilities/dbService";
+import { sendEmail } from "../../utilities/sendEmail";
 import {
   encryptpassword,
   decryptPassword,
@@ -196,6 +197,125 @@ export const updateWorker = async (req, res) => {
   };
 };
 
+/*************************** updateWorkerPassword ***************************/
+export const updateWorkerPassword = async (req, res) => {
+  const payload = req.body;
+  const { userId } = req.user;
+
+  let workerData = await dbService.findOneRecord("workerModel", {
+    _id: userId,
+    isDeleted: false,
+  });
+
+  if (!workerData) throw new Error("user not found!");
+
+  let match = await decryptPassword(payload.oldPassword, workerData.password);
+  console.log("match->", match);
+  if (!match){
+    throw new Error("old Password is Invalid");
+  }
+
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    throw new Error("new Password and confirm Password must be same!");
+  }
+
+  let password = await encryptpassword(req.body.newPassword);
+  req.body.oldPassword = password;
+
+  let project = await dbService.findOneAndUpdateRecord(
+    "workerModel",
+    { _id: workerData._id },
+    {
+      password: password,
+      updatedAt: Date(),
+    },
+    { new: true }
+  );
+
+  return "Password updated successfully";
+};
+
+/*************************** forgotPassword ***************************/
+export const forgotPassword = async (req, res) => {
+  const payload = req.body;
+
+  let resetPasswordToken = await generateRandom();
+
+  let workerData = await dbService.findOneAndUpdateRecord(
+    "workerModel",
+    {
+      // _id: userId,
+      email: payload.email,
+      isDeleted: false,
+    },
+    {
+      resetPasswordToken: resetPasswordToken,
+      resetPasswordExpire: Date.now() + 15 * 60 * 1000,
+    },
+    { new: true }
+  );
+
+  if (!workerData) throw new Error("something wrong!");
+
+  const resetPasswordUrl = `http://localhost:3002/resetpassword/${resetPasswordToken}`;
+
+  const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested this email then, please ignore it.`;
+
+  try {
+    let emailResponse = await sendEmail({
+      email: workerData.email,
+      subject: `Ecommerce Password Recovery`,
+      message,
+    });
+
+    let emailSuccessMessage = `email send successfully ${payload.email}`;
+
+    return {
+      message: emailSuccessMessage,
+    };
+  } catch (error) {
+    throw new Error("Email Not send! something wrong please try again.");
+  }
+};
+
+/*************************** Reset Password from Link ***************************/
+export const resetPassword = async (req, res) => {
+  const payload = req.body;
+
+  if (payload.password !== payload.confirmPassword) {
+    throw new Error("Password and confirm password must be same!", 400);
+  }
+
+  let workerData = await dbService.findOneRecord("workerModel", {
+    resetPasswordToken: payload.resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+    isDeleted: false,
+  });
+
+  if (!workerData){
+    throw new Error("Reset Password Token is invalid or has been expired", 400);
+  }
+
+  let password = await encryptpassword(payload.password);
+
+  let result = await dbService.findOneAndUpdateRecord(
+    "workerModel",
+    {
+      _id: workerData._id,
+    },
+    {
+      $set: { password: password },
+      $unset: { resetPasswordToken: 1, resetPasswordExpire: 1 },
+    },
+    { new: true }
+  );
+
+  return {
+    data: result,
+    message: "Password Reset Succesfully",
+  };
+};
+
 /*************************** loginAdmin ***************************/
 export const onLogin = async (req, res, next) => {
   const payload = req.body;
@@ -206,7 +326,7 @@ export const onLogin = async (req, res, next) => {
     isVerified: true,
     isDeleted: false,
   });
-  if (!userData) throw new Error("Admin not found");
+  if (!userData) throw new Error("Worker not found");
 
   let match = await decryptPassword(payload.password, userData.password);
   if (!match) throw new Error("Password Invalid");
@@ -266,14 +386,14 @@ export const getWorkerWithId = async (req, res) => {
   console.log("payload-->", payload);
   console.log("userId--->", userId);
 
-  let userData = await dbService.findOneRecord("workerModel", {
+  let workerData = await dbService.findOneRecord("workerModel", {
     _id: ObjectId(_id),
     isDeleted: false,
   });
 
-  if (!userData) throw new Error("user not found!");
+  if (!workerData) throw new Error("worker not found!");
 
-  return userData;
+  return workerData;
 };
 
 // Logout Admin

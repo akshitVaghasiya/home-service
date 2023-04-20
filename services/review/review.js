@@ -100,5 +100,81 @@ export const getReviewByService = async (req, res) => {
     throw new Error("Something went wrong!")
   }
 
-  return reviewData
+  let star5 = 0;
+  let star4 = 0;
+  let star3 = 0;
+  let star2 = 0;
+  let star1 = 0;
+  let totalStar = 0;
+  let countRating = 0;
+  let avgRating = 0;
+
+  reviewData.forEach((value, index) => {
+    switch (value.rating) {
+      case 5:
+        star5+=1;
+        totalStar+=value.rating
+        countRating+=1
+        break;
+      case 4:
+        star4+=1;
+        totalStar+=value.rating
+        countRating+=1
+        break;
+      case 3:
+        star3+=1;
+        totalStar+=value.rating
+        countRating+=1
+        break;
+      case 2:
+        star2+=1;
+        totalStar+=value.rating
+        countRating+=1
+        break;
+      case 1:
+        star1+=1;
+        totalStar+=value.rating
+        countRating+=1
+        break;
+      default:
+        break;
+    }
+  })
+
+  let reviewCalculation = [
+    {
+      rating: 5,
+      value: star5
+    },
+    {
+      rating: 4,
+      value: star4
+    },
+    {
+      rating: 3,
+      value: star3
+    },
+    {
+      rating: 2,
+      value: star2
+    },
+    {
+      rating: 1,
+      value: star1
+    }
+  ]
+
+  avgRating = (Math.round((totalStar / countRating) * 100) / 100).toFixed(2)
+
+  if(avgRating == "NaN"){
+    avgRating = 0
+  }
+
+  return {
+    reviewData,
+    reviewCalculation,
+    totalStar,
+    countRating,
+    avgRating
+  }
 }

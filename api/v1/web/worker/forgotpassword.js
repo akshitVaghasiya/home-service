@@ -6,7 +6,7 @@
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { forgotPassword } from "../../../../services/customer/customer";
+import { forgotPassword } from "../../../../services/worker/worker";
 import { decodeJwtTokenFn } from "../../../../utilities/universal";
 const router = new Router();
 
@@ -35,7 +35,6 @@ const router = new Router();
 
 const dataSchema = Joi.object({
   email: Joi.string().required().label("email"),
-  from: Joi.string().label("from")
 });
 
 router.post('/forgotpassword', commonResolver.bind({ modelService: forgotPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
