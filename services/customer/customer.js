@@ -68,12 +68,12 @@ export const addCustomer = async (req, res) => {
 /*************************** loginCustomer ***************************/
 export const onLogin = async (req, res, next) => {
   const payload = req.body;
-  console.log("payload==>", payload);
+  // console.log("payload==>", payload);
   let userData = await dbService.findOneRecord("customerModel", {
     email: payload.email.toLowerCase(),
     isDeleted: false,
   });
-  console.log("userData==>", userData);
+  // console.log("userData==>", userData);
   if (!userData) throw new Error("Email not exists");
 
   let match = await decryptPassword(payload.password, userData.password);
@@ -120,9 +120,10 @@ export const onLogin = async (req, res, next) => {
   res.cookie("token", token, options);
 
   return {
-    email: data.email,
-    lastLogin: data.lastLoginDate,
-    token: token,
+    // email: data.email,
+    // lastLogin: data.lastLoginDate,
+    ...data._doc
+    // token: token,
   };
 };
 
@@ -219,7 +220,7 @@ export const updateCustomerPassword = async (req, res) => {
     { new: true }
   );
 
-  return project;
+  return "Password updated successfully";
 };
 
 /*************************** forgotPassword ***************************/
@@ -243,9 +244,11 @@ export const forgotPassword = async (req, res) => {
     { new: true }
   );
 
+  console.log("update pass userdata--->>>", userData)
+
   if (!userData) throw new Error("something wrong!");
 
-  const resetPasswordUrl = `http://localhost:3000/${resetPasswordToken}`;
+  const resetPasswordUrl = `http://localhost:3000/resetpassword/${resetPasswordToken}`;
 
   const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested this email then, please ignore it.`;
 
@@ -295,8 +298,9 @@ export const resetPassword = async (req, res) => {
 
   console.log("userData->", userData);
 
-  if (!userData)
+  if (!userData){
     throw new Error("Reset Password Token is invalid or has been expired", 400);
+  }
 
   let password = await encryptpassword(payload.password);
 
@@ -341,7 +345,7 @@ export const updateCustomer = async (req, res) => {
 
   return {
     data: project,
-    message: "data updated successfully."
+    message: "Profile updated successfully."
   };
 };
 

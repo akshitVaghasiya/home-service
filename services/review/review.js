@@ -66,3 +66,39 @@ export const getReview = async (req, res) => {
 
   return reviewData
 }
+
+export const getReviewByService = async (req, res) => {
+  const { serviceId } = req.body;
+  // console.log("payload--->", req.body);
+
+  const reviewData = await dbService.aggregateData("reviewModel", [
+    {
+      $match: {
+        serviceId: ObjectId(serviceId),
+      },
+    },
+    {
+      $lookup: {
+        from: "customers",
+        localField: "customerId",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              firstName: 1,
+              lastName: 1
+            },
+          },
+        ],
+        as: "userData",
+      },
+    },
+  ]);
+
+  if(!reviewData) {
+    throw new Error("Something went wrong!")
+  }
+
+  return reviewData
+}
