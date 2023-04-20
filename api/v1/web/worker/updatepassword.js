@@ -6,17 +6,17 @@
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'
-import { forgotPassword } from "../../../../services/customer/customer";
+import { updateWorkerPassword } from "../../../../services/worker/worker";
 import { decodeJwtTokenFn } from "../../../../utilities/universal";
 const router = new Router();
 
 /**
  * @swagger
- * /api/v1/customer/forgotpassword:
+ * /api/v1/customer/updatepassword:
  *  post:
  *   tags: ["Customer"]
  *   summary: Save customer information.
- *   description: api used for create customer forgot password token information.
+ *   description: api used for update customer password information.
  *   parameters:
  *      - in: body
  *        name: lead
@@ -24,20 +24,33 @@ const router = new Router();
  *        schema:
  *         type: object
  *         properties:
- *           email:
+ *           oldPassword:
+ *             type: string
+ *           newPassword:
+ *             type: string
+ *           confirmPassword:
  *             type: string
  *   responses:
  *    "200":
  *     description: success
  *    "400":
  *     description: fail
+ *   security:
+ *      - bearerAuth: [] 
  */
 
 const dataSchema = Joi.object({
-  email: Joi.string().required().label("email"),
-  from: Joi.string().label("from")
+  oldPassword: Joi.string().required().label("old Password"),
+  newPassword: Joi.string().required().label("new Password"),
+  confirmPassword: Joi.string().required().label("confirm Password"),
 });
 
-router.post('/forgotpassword', commonResolver.bind({ modelService: forgotPassword, isRequestValidateRequired: true, schemaValidate: dataSchema }))
+router.post('/updatepassword',
+  decodeJwtTokenFn,
+  commonResolver.bind({
+    modelService: updateWorkerPassword,
+    isRequestValidateRequired: true,
+    schemaValidate: dataSchema
+  }))
 
 export default router;

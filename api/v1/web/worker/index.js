@@ -18,6 +18,9 @@ import list from './list';
 import single from './single';
 import getrequest from './getrequest';
 import updaterequest from './updaterequest';
+import updatepassword from './updatepassword';
+import forgotpassword from './forgotpassword';
+import resetpassword from './resetpassword';
 
-export default [login, logout, add, addevent, getevent, getsingleevent, deleteevent, updateevent, updateworker, single, list, getrequest, updaterequest,];
+export default [login, logout, add, addevent, getevent, getsingleevent, deleteevent, updateevent, updateworker, single, list, getrequest, updaterequest, updatepassword, forgotpassword, resetpassword];
 

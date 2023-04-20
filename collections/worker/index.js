@@ -43,6 +43,8 @@ const workerModel = new mongoose.Schema({
     isDeleted: { type: Boolean, default: false },
     deletedAt: Number,
     isUpdated: Boolean,
+    resetPasswordToken: String,
+    resetPasswordExpire: Number,
     // createdAt: { type: Date, default: Date() },
     // updatedAt: { type: Date, default: Date() },
 });
