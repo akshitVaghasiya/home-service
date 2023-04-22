@@ -8,6 +8,7 @@ const orderModel = new mongoose.Schema({
         {
             subCategoryId: { type: Schema.Types.ObjectId, ref: "subcategory", require: true },
             serviceId: { type: Schema.Types.ObjectId, ref: "service", require: true },
+            serviceName: { type: String },
             quantity: { type: Number },
             price: { type: Number },
             total: { type: Number },
