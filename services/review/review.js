@@ -178,3 +178,47 @@ export const getReviewByService = async (req, res) => {
     avgRating
   }
 }
+
+// get top 3 reviews
+export const getTop3Review = async (req, res) => {
+
+  const reviewData = await dbService.aggregateData("reviewModel", [
+    {
+      $sort: { rating: -1 },
+    },
+    {
+      $limit: 3,
+    },
+    {
+      $project: {
+        _id: 1,
+        customerId: 1,
+        rating: 1,
+        description: 1
+      }
+    },
+    {
+      $lookup: {
+        from: "customers",
+        localField: "customerId",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              firstName: 1,
+              lastName: 1
+            },
+          },
+        ],
+        as: "userData",
+      },
+    },
+  ]);
+
+  if(!reviewData) {
+    throw new Error("Something went wrong!")
+  }
+
+  return reviewData
+}
