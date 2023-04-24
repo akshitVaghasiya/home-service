@@ -26,6 +26,9 @@ const port = process.env.PORT ? process.env.PORT : 8000;
 
 const app = express();
 
+// cron
+require('./cron/index');
+
 // Access-Control-Allow-Origin
 app.use(
   cors({
