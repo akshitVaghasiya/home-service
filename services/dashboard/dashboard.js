@@ -377,7 +377,7 @@ export const getWorkerDashboard = async (req, res, next) => {
   });
 
   return {
-    earning,
+    earning: earning[0],
     completedOrders,
     cancelledOrders,
     confirmedOrders,

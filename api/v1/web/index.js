@@ -1,8 +1,3 @@
-/*
- * @file: index.js
- * @description: It's combine all routers.
- * @author: Sandip Vaghasiya
- */
 import { Router } from "express";
 const app = Router();
 

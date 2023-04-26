@@ -1,9 +1,3 @@
-/*
- * @file: app.js
- * @description: It Contain server setup functions.
- * @author: Sandip Vaghasiya
- */
-
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";

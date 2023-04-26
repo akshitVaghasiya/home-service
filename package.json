@@ -11,7 +11,7 @@
     "ri": "rm -rf node_modules && npm install",
     "ngrok": "ngrok http 6003"
   },
-  "author": "Sandip Vaghasiya",
+  "author": "home service",
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.17.10",

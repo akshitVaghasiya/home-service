@@ -1,9 +1,3 @@
-/*
- * @file: index.js
- * @description: It Contain db setup function.
- * @author: Sandip Vaghasiya
- */
-
 import mongoose from "mongoose";
 
 /* development connection string */

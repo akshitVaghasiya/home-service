@@ -108,7 +108,7 @@ export const getWork = async (req, res) => {
       ...where,
       ...{
         $or: [
-          { serviceName: { $regex: postData.searchText, $options: "i" } },
+          { items: { $elemMatch: { serviceName: { $regex: postData.searchText, $options: "i" } } } },
         ],
       },
     };
@@ -239,7 +239,18 @@ export const getSingleWork = async (req, res, next) => {
         }
       },
       {
+        $lookup: {
+          from: "customers",
+          localField: "customerId",
+          foreignField: "_id",
+          as: "customerDetail"
+        }
+      },
+      {
         $unwind: "$categoryDetail"
+      },
+      {
+        $unwind: "$customerDetail"
       },
     ],
   );
@@ -359,7 +370,7 @@ export const getOrder = async (req, res) => {
       ...where,
       ...{
         $or: [
-          { serviceName: { $regex: postData.searchText, $options: "i" } },
+          { items: { $elemMatch: { serviceName: { $regex: postData.searchText, $options: "i" } } } },
         ],
       },
     };
@@ -460,7 +471,7 @@ export const getSingleOrder = async (req, res, next) => {
           $not: {
             $elemMatch: {
               start: { $lt: orderData.endTime },
-              end: { $gt: orderData.startTime } 
+              end: { $gt: orderData.startTime }
             }
           }
         }
@@ -520,7 +531,7 @@ export const deleteOrder = async (req, res, next) => {
       _id: ObjectId(id),
     },
     {
-      status: postData.status,
+      status: "cancelled",
     },
     { new: true }
   );
