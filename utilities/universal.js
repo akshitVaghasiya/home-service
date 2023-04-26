@@ -1,9 +1,3 @@
-/*
- * @file: universal.js
- * @description: It Contain function layer for all commom function.
- * @author: Sandip Vaghasiya
- */
-
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 

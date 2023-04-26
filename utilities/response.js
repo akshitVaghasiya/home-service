@@ -1,9 +1,3 @@
-/*
- * @file: response.js
- * @description: It Contain function layer for api response status with data.
- * @author: Sandip Vaghasiya
- */
-
 export const successAction = (data, message = "OK", type = "SUCCESS") => {
   return { statusCode: 200, data, message, type };
 };

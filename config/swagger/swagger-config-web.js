@@ -1,8 +1,3 @@
-/*
- * @file: swagger-config.js
- * @description: It Contain swagger configrations.
- * @author: Sandip Vaghasiya
- */
 import swaggerJsDocs from 'swagger-jsdoc';
 
 const swaggerOptions = {
@@ -12,7 +7,7 @@ const swaggerOptions = {
             version: '1.0',
             description: 'All api end points',
             contact: {
-                name: 'Sandip Vaghasiya'
+                name: 'home service'
             },
             servers: ['http://localhost:3000']
         },

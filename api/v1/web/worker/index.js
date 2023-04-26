@@ -1,10 +1,3 @@
-/*
- * @file: index.js
- * @description: It's combine all customer routers.
- * @author: Sandip Vaghasiya
- */
-
-
 import login from './login';
 import logout from './logout';
 import add from './save';

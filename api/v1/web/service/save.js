@@ -1,8 +1,3 @@
-/**
- * This is Contain Save router/api.
- * @author Sandip Vaghasiya
- *
- */
 import { Joi } from '../../../../utilities/schemaValidate'
 import { Router } from 'express';
 import commonResolver from '../../../../utilities/commonResolver'

@@ -1,8 +1,3 @@
-/*
- * @file: login.js
- * @description: It Contain login router/api.
- * @author: Sandip Vaghasiya
- */
 import { Joi } from "../../../../utilities/schemaValidate";
 import { Router } from "express";
 import commonResolver from "../../../../utilities/commonResolver";
