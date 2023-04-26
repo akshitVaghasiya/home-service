@@ -520,7 +520,7 @@ export const deleteOrder = async (req, res, next) => {
       _id: ObjectId(id),
     },
     {
-      status: postData.status,
+      status: "cancelled",
     },
     { new: true }
   );

@@ -264,7 +264,7 @@ export const forgotPassword = async (req, res) => {
   try {
     let emailResponse = await sendEmail({
       email: workerData.email,
-      subject: `Ecommerce Password Recovery`,
+      subject: `Homebuddy Password Recovery`,
       message,
     });
 

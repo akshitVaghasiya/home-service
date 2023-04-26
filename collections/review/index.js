@@ -5,10 +5,6 @@ const reviewModel = new mongoose.Schema({
     rating: { type: Number },
     description: { type: String },
     isDeleted: { type: Boolean, default: false },
-    // deletedAt: Number,
-    // isUpdated: Boolean,
-    // createdAt: { type: Date, default: Date() },
-    // updatedAt: { type: Date, default: Date() },
 });
 
 reviewModel.set("timestamps", true);
